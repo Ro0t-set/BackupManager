@@ -21,6 +21,7 @@ class User(Base):
 
     # Relationships
     created_groups = relationship("Group", back_populates="creator", foreign_keys="Group.created_by")
+    databases = relationship("Database", back_populates="creator", foreign_keys="Database.created_by")
 
     def __repr__(self):
         return f"<User {self.username}>"

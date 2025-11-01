@@ -16,7 +16,7 @@ class Group(Base):
 
     # Relationships
     creator = relationship("User", back_populates="created_groups", foreign_keys=[created_by])
-    # Future: databases = relationship("Database", back_populates="group")
+    databases = relationship("Database", back_populates="group", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Group {self.name}>"
