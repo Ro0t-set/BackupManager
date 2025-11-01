@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backup-manager-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backups:/app/backups
+      - ./backend:/app
+      - backend-db:/app/db
+    environment:
+      - DATABASE_URL=sqlite:///./db/app.db
+      - SECRET_KEY=${SECRET_KEY:-change-this-in-production}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-generate-fernet-key}
+      - BACKUP_BASE_PATH=/app/backups
+      - CORS_ORIGINS=["http://localhost:3000","http://localhost:5173"]
+      - DEBUG=True
+    restart: unless-stopped
+    networks:
+      - backup-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: backup-manager-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - backup-network
+    environment:
+      - VITE_API_URL=http://localhost:8000/api
+
+volumes:
+  backend-db:
+    driver: local
+  backups:
+    driver: local
+
+networks:
+  backup-network:
+    driver: bridge
