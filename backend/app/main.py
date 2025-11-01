@@ -1,11 +1,39 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 import os
+
+from app.core.database import init_db, SessionLocal
+from app.core.init_admin import create_default_admin
+from app.api.routes import auth
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Startup and shutdown events"""
+    # Startup: Initialize database and create admin user
+    print("🚀 Starting BackupManager API...")
+    init_db()
+    print("✅ Database initialized")
+
+    # Create default admin user
+    db = SessionLocal()
+    try:
+        create_default_admin(db)
+    finally:
+        db.close()
+
+    yield
+
+    # Shutdown
+    print("👋 Shutting down BackupManager API...")
+
 
 app = FastAPI(
     title="BackupManager API",
     description="Database backup management system",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # CORS middleware configuration
@@ -37,7 +65,10 @@ async def health_check():
     }
 
 
-# Import and include routers
+# Include routers
+app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
+
+# Future routers
 # from app.api.routes import backups, projects, databases
 # app.include_router(backups.router, prefix="/api/backups", tags=["backups"])
 # app.include_router(projects.router, prefix="/api/projects", tags=["projects"])
