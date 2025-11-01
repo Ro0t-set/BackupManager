@@ -5,6 +5,7 @@ import { useAuth } from './hooks/useAuth'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Groups from './pages/Groups'
+import Databases from './pages/Databases'
 
 function AppContent() {
   const { isAuthenticated, loading, user, logout } = useAuth()
@@ -85,6 +86,17 @@ function AppContent() {
                 <FolderOpen className="w-5 h-5" />
                 Groups
               </button>
+              <button
+                onClick={() => setCurrentPage('databases')}
+                className={`w-full text-left px-4 py-3 rounded-lg font-medium transition flex items-center gap-3 ${
+                  currentPage === 'databases'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <Database className="w-5 h-5" />
+                Databases
+              </button>
             </nav>
           </aside>
 
@@ -92,6 +104,7 @@ function AppContent() {
           <main className="flex-1">
             {currentPage === 'dashboard' && <Dashboard />}
             {currentPage === 'groups' && <Groups />}
+            {currentPage === 'databases' && <Databases />}
           </main>
         </div>
       </div>

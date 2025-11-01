@@ -85,6 +85,42 @@ class ApiService {
     })
   }
 
+  // Databases endpoints
+  async getDatabases(groupId = null) {
+    const query = groupId ? `?group_id=${groupId}` : ''
+    return this.request(`/databases${query}`)
+  }
+
+  async getDatabase(id) {
+    return this.request(`/databases/${id}`)
+  }
+
+  async createDatabase(databaseData) {
+    return this.request('/databases', {
+      method: 'POST',
+      body: JSON.stringify(databaseData),
+    })
+  }
+
+  async updateDatabase(id, databaseData) {
+    return this.request(`/databases/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(databaseData),
+    })
+  }
+
+  async deleteDatabase(id) {
+    return this.request(`/databases/${id}`, {
+      method: 'DELETE',
+    })
+  }
+
+  async testDatabaseConnection(id) {
+    return this.request(`/databases/${id}/test`, {
+      method: 'POST',
+    })
+  }
+
   // Health check
   async healthCheck() {
     const response = await fetch(`${this.baseURL.replace('/api', '')}/api/health`)
