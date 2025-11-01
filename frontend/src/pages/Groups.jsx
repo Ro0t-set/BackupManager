@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { FolderOpen, Plus, Edit, Trash2, Loader2, X } from 'lucide-react'
 import api from '../services/api'
 
 function Groups() {
@@ -73,7 +74,7 @@ function Groups() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
       </div>
     )
   }
@@ -89,7 +90,7 @@ function Groups() {
           onClick={openCreateModal}
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition flex items-center gap-2"
         >
-          <span className="text-xl">+</span>
+          <Plus className="w-5 h-5" />
           Create Group
         </button>
       </div>
@@ -102,13 +103,14 @@ function Groups() {
 
       {groups.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-12 text-center">
-          <div className="text-6xl mb-4">📁</div>
+          <FolderOpen className="w-20 h-20 text-gray-400 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 mb-2">No groups yet</h3>
           <p className="text-gray-600 mb-4">Create your first group to organize your databases</p>
           <button
             onClick={openCreateModal}
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition"
+            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition inline-flex items-center gap-2"
           >
+            <Plus className="w-5 h-5" />
             Create First Group
           </button>
         </div>
@@ -118,7 +120,7 @@ function Groups() {
             <div key={group.id} className="bg-white rounded-lg shadow hover:shadow-lg transition p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="text-3xl">📁</div>
+                  <FolderOpen className="w-8 h-8 text-blue-600" />
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">{group.name}</h3>
                     <p className="text-sm text-gray-500">
@@ -135,14 +137,16 @@ function Groups() {
               <div className="flex gap-2 pt-4 border-t border-gray-200">
                 <button
                   onClick={() => handleEdit(group)}
-                  className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded transition"
+                  className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded transition flex items-center justify-center gap-2"
                 >
+                  <Edit className="w-4 h-4" />
                   Edit
                 </button>
                 <button
                   onClick={() => handleDelete(group.id)}
-                  className="flex-1 px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium rounded transition"
+                  className="flex-1 px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium rounded transition flex items-center justify-center gap-2"
                 >
+                  <Trash2 className="w-4 h-4" />
                   Delete
                 </button>
               </div>
@@ -155,9 +159,21 @@ function Groups() {
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
-              {editingGroup ? 'Edit Group' : 'Create New Group'}
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900">
+                {editingGroup ? 'Edit Group' : 'Create New Group'}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowModal(false)
+                  setEditingGroup(null)
+                  setFormData({ name: '', description: '' })
+                }}
+                className="text-gray-400 hover:text-gray-600 transition"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>

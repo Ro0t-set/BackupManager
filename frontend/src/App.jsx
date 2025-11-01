@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Database, LayoutDashboard, FolderOpen, LogOut, Loader2 } from 'lucide-react'
 import { AuthProvider } from './context/AuthContext'
 import { useAuth } from './hooks/useAuth'
 import Login from './pages/Login'
@@ -13,7 +14,7 @@ function AppContent() {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto" />
           <p className="mt-4 text-gray-600">Loading...</p>
         </div>
       </div>
@@ -31,7 +32,7 @@ function AppContent() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-3xl">💾</span>
+              <Database className="w-8 h-8 text-blue-600" />
               <h1 className="text-2xl font-bold text-gray-900">BackupManager</h1>
             </div>
 
@@ -47,8 +48,9 @@ function AppContent() {
               )}
               <button
                 onClick={logout}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition"
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition flex items-center gap-2"
               >
+                <LogOut className="w-4 h-4" />
                 Logout
               </button>
             </div>
@@ -63,23 +65,25 @@ function AppContent() {
             <nav className="space-y-2">
               <button
                 onClick={() => setCurrentPage('dashboard')}
-                className={`w-full text-left px-4 py-3 rounded-lg font-medium transition ${
+                className={`w-full text-left px-4 py-3 rounded-lg font-medium transition flex items-center gap-3 ${
                   currentPage === 'dashboard'
                     ? 'bg-blue-600 text-white'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >
-                📊 Dashboard
+                <LayoutDashboard className="w-5 h-5" />
+                Dashboard
               </button>
               <button
                 onClick={() => setCurrentPage('groups')}
-                className={`w-full text-left px-4 py-3 rounded-lg font-medium transition ${
+                className={`w-full text-left px-4 py-3 rounded-lg font-medium transition flex items-center gap-3 ${
                   currentPage === 'groups'
                     ? 'bg-blue-600 text-white'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >
-                📁 Groups
+                <FolderOpen className="w-5 h-5" />
+                Groups
               </button>
             </nav>
           </aside>
