@@ -1,11 +1,15 @@
 import { useState } from 'react'
 import { Database, LayoutDashboard, FolderOpen, LogOut, Loader2 } from 'lucide-react'
-import { AuthProvider } from './context/AuthContext'
-import { useAuth } from './hooks/useAuth'
-import Login from './pages/Login'
-import Dashboard from './pages/Dashboard'
-import Groups from './pages/Groups'
-import Databases from './pages/Databases'
+import { AuthProvider } from '@/context/AuthContext'
+import { useAuth } from '@/hooks/useAuth'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Card } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import Login from '@/pages/Login'
+import Dashboard from '@/pages/Dashboard'
+import Groups from '@/pages/Groups'
+import Databases from '@/pages/Databases'
 
 function AppContent() {
   const { isAuthenticated, loading, user, logout } = useAuth()
@@ -13,10 +17,10 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto" />
-          <p className="mt-4 text-gray-600">Loading...</p>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto" />
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     )
@@ -26,34 +30,37 @@ function AppContent() {
     return <Login />
   }
 
+  const navItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'groups', label: 'Groups', icon: FolderOpen },
+    { id: 'databases', label: 'Databases', icon: Database },
+  ]
+
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white shadow">
+      <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Database className="w-8 h-8 text-blue-600" />
-              <h1 className="text-2xl font-bold text-gray-900">BackupManager</h1>
+              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+                <Database className="w-6 h-6 text-primary-foreground" />
+              </div>
+              <h1 className="text-2xl font-bold">BackupManager</h1>
             </div>
 
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">{user?.full_name || user?.username}</p>
-                <p className="text-xs text-gray-600">{user?.email}</p>
+                <p className="text-sm font-medium">{user?.full_name || user?.username}</p>
+                <p className="text-xs text-muted-foreground">{user?.email}</p>
               </div>
               {user?.is_admin && (
-                <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded">
-                  Admin
-                </span>
+                <Badge variant="secondary">Admin</Badge>
               )}
-              <button
-                onClick={logout}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition flex items-center gap-2"
-              >
-                <LogOut className="w-4 h-4" />
+              <Button variant="destructive" size="sm" onClick={logout}>
+                <LogOut className="w-4 h-4 mr-2" />
                 Logout
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -62,42 +69,26 @@ function AppContent() {
       <div className="container mx-auto px-4 py-6">
         <div className="flex gap-6">
           {/* Sidebar */}
-          <aside className="w-64 bg-white rounded-lg shadow p-4">
-            <nav className="space-y-2">
-              <button
-                onClick={() => setCurrentPage('dashboard')}
-                className={`w-full text-left px-4 py-3 rounded-lg font-medium transition flex items-center gap-3 ${
-                  currentPage === 'dashboard'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <LayoutDashboard className="w-5 h-5" />
-                Dashboard
-              </button>
-              <button
-                onClick={() => setCurrentPage('groups')}
-                className={`w-full text-left px-4 py-3 rounded-lg font-medium transition flex items-center gap-3 ${
-                  currentPage === 'groups'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <FolderOpen className="w-5 h-5" />
-                Groups
-              </button>
-              <button
-                onClick={() => setCurrentPage('databases')}
-                className={`w-full text-left px-4 py-3 rounded-lg font-medium transition flex items-center gap-3 ${
-                  currentPage === 'databases'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Database className="w-5 h-5" />
-                Databases
-              </button>
-            </nav>
+          <aside className="w-64">
+            <Card className="p-2">
+              <nav className="space-y-1">
+                {navItems.map((item) => {
+                  const Icon = item.icon
+                  const isActive = currentPage === item.id
+                  return (
+                    <Button
+                      key={item.id}
+                      variant={isActive ? 'default' : 'ghost'}
+                      className="w-full justify-start"
+                      onClick={() => setCurrentPage(item.id)}
+                    >
+                      <Icon className="w-5 h-5 mr-3" />
+                      {item.label}
+                    </Button>
+                  )
+                })}
+              </nav>
+            </Card>
           </aside>
 
           {/* Main Content */}
