@@ -1,3 +1,3 @@
-from . import auth
+from . import auth, groups
 
-__all__ = ["auth"]
+__all__ = ["auth", "groups"]

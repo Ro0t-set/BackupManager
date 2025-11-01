@@ -56,7 +56,7 @@ function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                placeholder="admin@backupmanager.local"
+                placeholder="admin@example.com"
               />
             </div>
 
@@ -90,7 +90,7 @@ function Login() {
                 Default Admin Credentials:
               </p>
               <p className="text-sm text-blue-800">
-                Email: <code className="bg-blue-100 px-2 py-1 rounded">admin@backupmanager.local</code>
+                Email: <code className="bg-blue-100 px-2 py-1 rounded">admin@example.com</code>
               </p>
               <p className="text-sm text-blue-800">
                 Password: <code className="bg-blue-100 px-2 py-1 rounded">admin123</code>

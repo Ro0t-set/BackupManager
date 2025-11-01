@@ -6,7 +6,7 @@ import os
 
 def create_default_admin(db: Session):
     """Create default admin user if it doesn't exist"""
-    admin_email = os.getenv("ADMIN_EMAIL", "admin@backupmanager.local")
+    admin_email = os.getenv("ADMIN_EMAIL", "admin@example.com")
     admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
     admin_username = os.getenv("ADMIN_USERNAME", "admin")
 

@@ -1,12 +1,23 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional
 from datetime import datetime
+from email_validator import validate_email, EmailNotValidError
 
 
 class UserBase(BaseModel):
-    email: EmailStr
+    email: str
     username: str
     full_name: Optional[str] = None
+
+    @field_validator('email')
+    @classmethod
+    def validate_email_field(cls, v: str) -> str:
+        try:
+            # Allow local domains for development
+            validate_email(v, check_deliverability=False)
+            return v
+        except EmailNotValidError as e:
+            raise ValueError(str(e))
 
 
 class UserCreate(UserBase):
@@ -14,8 +25,18 @@ class UserCreate(UserBase):
 
 
 class UserLogin(BaseModel):
-    email: EmailStr
+    email: str
     password: str
+
+    @field_validator('email')
+    @classmethod
+    def validate_email_field(cls, v: str) -> str:
+        try:
+            # Allow local domains for development
+            validate_email(v, check_deliverability=False)
+            return v
+        except EmailNotValidError as e:
+            raise ValueError(str(e))
 
 
 class UserResponse(UserBase):

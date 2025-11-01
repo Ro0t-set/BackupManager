@@ -56,6 +56,35 @@ class ApiService {
     return this.request('/auth/me')
   }
 
+  // Groups endpoints
+  async getGroups() {
+    return this.request('/groups')
+  }
+
+  async getGroup(id) {
+    return this.request(`/groups/${id}`)
+  }
+
+  async createGroup(groupData) {
+    return this.request('/groups', {
+      method: 'POST',
+      body: JSON.stringify(groupData),
+    })
+  }
+
+  async updateGroup(id, groupData) {
+    return this.request(`/groups/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(groupData),
+    })
+  }
+
+  async deleteGroup(id) {
+    return this.request(`/groups/${id}`, {
+      method: 'DELETE',
+    })
+  }
+
   // Health check
   async healthCheck() {
     const response = await fetch(`${this.baseURL.replace('/api', '')}/api/health`)

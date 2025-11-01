@@ -1,42 +1,10 @@
 import { useAuth } from '../hooks/useAuth'
 
 function Dashboard() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-white shadow">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-3xl">💾</span>
-              <h1 className="text-2xl font-bold text-gray-900">BackupManager</h1>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">{user?.full_name || user?.username}</p>
-                <p className="text-xs text-gray-600">{user?.email}</p>
-              </div>
-              {user?.is_admin && (
-                <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded">
-                  Admin
-                </span>
-              )}
-              <button
-                onClick={logout}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+    <div>
         <div className="max-w-6xl mx-auto">
           {/* Welcome Section */}
           <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
@@ -137,7 +105,6 @@ function Dashboard() {
             </div>
           </div>
         </div>
-      </main>
     </div>
   )
 }
