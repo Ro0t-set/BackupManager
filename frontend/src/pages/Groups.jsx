@@ -1,6 +1,20 @@
 import { useState, useEffect } from 'react'
-import { FolderOpen, Plus, Edit, Trash2, Loader2, X } from 'lucide-react'
-import api from '../services/api'
+import { FolderOpen, Plus, Edit, Trash2, Loader2 } from 'lucide-react'
+import api from '@/services/api'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog'
 
 function Groups() {
   const [groups, setGroups] = useState([])
@@ -74,158 +88,144 @@ function Groups() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
+        <Loader2 className="w-12 h-12 text-primary animate-spin" />
       </div>
     )
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Groups</h2>
-          <p className="text-gray-600 mt-1">Organize your databases into groups</p>
+          <h2 className="text-2xl font-bold">Groups</h2>
+          <p className="text-muted-foreground mt-1">Organize your databases into groups</p>
         </div>
-        <button
-          onClick={openCreateModal}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition flex items-center gap-2"
-        >
-          <Plus className="w-5 h-5" />
+        <Button onClick={openCreateModal}>
+          <Plus className="w-5 h-5 mr-2" />
           Create Group
-        </button>
+        </Button>
       </div>
 
       {error && (
-        <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-          {error}
-        </div>
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
 
       {groups.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-12 text-center">
-          <FolderOpen className="w-20 h-20 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">No groups yet</h3>
-          <p className="text-gray-600 mb-4">Create your first group to organize your databases</p>
-          <button
-            onClick={openCreateModal}
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition inline-flex items-center gap-2"
-          >
-            <Plus className="w-5 h-5" />
-            Create First Group
-          </button>
-        </div>
+        <Card>
+          <CardContent className="pt-12 pb-12 text-center">
+            <FolderOpen className="w-20 h-20 text-muted-foreground mx-auto mb-4" />
+            <CardTitle className="mb-2">No groups yet</CardTitle>
+            <CardDescription className="mb-4">
+              Create your first group to organize your databases
+            </CardDescription>
+            <Button onClick={openCreateModal}>
+              <Plus className="w-5 h-5 mr-2" />
+              Create First Group
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {groups.map((group) => (
-            <div key={group.id} className="bg-white rounded-lg shadow hover:shadow-lg transition p-6">
-              <div className="flex items-start justify-between mb-4">
+            <Card key={group.id}>
+              <CardHeader>
                 <div className="flex items-center gap-3">
-                  <FolderOpen className="w-8 h-8 text-blue-600" />
+                  <FolderOpen className="w-8 h-8 text-primary" />
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{group.name}</h3>
-                    <p className="text-sm text-gray-500">
+                    <CardTitle className="text-lg">{group.name}</CardTitle>
+                    <CardDescription>
                       {new Date(group.created_at).toLocaleDateString()}
-                    </p>
+                    </CardDescription>
                   </div>
                 </div>
-              </div>
-
-              {group.description && (
-                <p className="text-gray-600 text-sm mb-4">{group.description}</p>
-              )}
-
-              <div className="flex gap-2 pt-4 border-t border-gray-200">
-                <button
-                  onClick={() => handleEdit(group)}
-                  className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded transition flex items-center justify-center gap-2"
-                >
-                  <Edit className="w-4 h-4" />
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(group.id)}
-                  className="flex-1 px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium rounded transition flex items-center justify-center gap-2"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Delete
-                </button>
-              </div>
-            </div>
+              </CardHeader>
+              <CardContent>
+                {group.description && (
+                  <p className="text-sm text-muted-foreground mb-4">{group.description}</p>
+                )}
+                <div className="flex gap-2 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => handleEdit(group)}
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => handleDelete(group.id)}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
 
-      {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-900">
-                {editingGroup ? 'Edit Group' : 'Create New Group'}
-              </h3>
-              <button
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {editingGroup ? 'Edit Group' : 'Create New Group'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingGroup
+                ? 'Update the group information below.'
+                : 'Enter the details for your new group.'}
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Group Name *</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+                placeholder="e.g., Production, Development, Testing"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                rows={3}
+                placeholder="Optional description for this group"
+              />
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => {
                   setShowModal(false)
                   setEditingGroup(null)
                   setFormData({ name: '', description: '' })
                 }}
-                className="text-gray-400 hover:text-gray-600 transition"
               >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Group Name *
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                  placeholder="e.g., Production, Development, Testing"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows="3"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                  placeholder="Optional description for this group"
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowModal(false)
-                    setEditingGroup(null)
-                    setFormData({ name: '', description: '' })
-                  }}
-                  className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition"
-                >
-                  {editingGroup ? 'Update' : 'Create'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+                Cancel
+              </Button>
+              <Button type="submit">
+                {editingGroup ? 'Update' : 'Create'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

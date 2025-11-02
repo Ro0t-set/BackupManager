@@ -30,9 +30,10 @@ class Backup(Base):
     database_id = Column(Integer, ForeignKey("databases.id"), nullable=False)
     schedule_id = Column(Integer, ForeignKey("schedules.id"), nullable=True)  # NULL if manual
 
-    # Storage information
-    storage_type = Column(SQLEnum(StorageType), nullable=False, default=StorageType.LOCAL)
-    file_path = Column(Text, nullable=False)  # Local path or S3 key
+    # Storage information (DEPRECATED - use destinations relationship instead)
+    # These fields are kept for backward compatibility with existing backups
+    storage_type = Column(SQLEnum(StorageType), nullable=True, default=StorageType.LOCAL)
+    file_path = Column(Text, nullable=True)  # Local path or S3 key
     file_size = Column(BigInteger, nullable=True)  # Size in bytes
     checksum = Column(String, nullable=True)  # MD5 or SHA256
 
@@ -58,6 +59,7 @@ class Backup(Base):
     database = relationship("Database", back_populates="backups")
     schedule = relationship("Schedule")
     creator = relationship("User", foreign_keys=[created_by])
+    destinations = relationship("BackupDestination", back_populates="backup", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Backup {self.name} ({self.status})>"

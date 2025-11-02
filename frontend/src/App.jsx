@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { BrowserRouter, Routes, Route, Navigate, useLocation, NavLink } from 'react-router-dom'
 import { Database, LayoutDashboard, FolderOpen, LogOut, Loader2 } from 'lucide-react'
 import { AuthProvider } from '@/context/AuthContext'
 import { useAuth } from '@/hooks/useAuth'
@@ -10,10 +10,11 @@ import Login from '@/pages/Login'
 import Dashboard from '@/pages/Dashboard'
 import Groups from '@/pages/Groups'
 import Databases from '@/pages/Databases'
+import DatabaseDetail from '@/pages/DatabaseDetail'
 
-function AppContent() {
+function AppLayout() {
   const { isAuthenticated, loading, user, logout } = useAuth()
-  const [currentPage, setCurrentPage] = useState('dashboard')
+  const location = useLocation()
 
   if (loading) {
     return (
@@ -31,9 +32,9 @@ function AppContent() {
   }
 
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'groups', label: 'Groups', icon: FolderOpen },
-    { id: 'databases', label: 'Databases', icon: Database },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/' },
+    { id: 'groups', label: 'Groups', icon: FolderOpen, path: '/groups' },
+    { id: 'databases', label: 'Databases', icon: Database, path: '/databases' },
   ]
 
   return (
@@ -74,17 +75,20 @@ function AppContent() {
               <nav className="space-y-1">
                 {navItems.map((item) => {
                   const Icon = item.icon
-                  const isActive = currentPage === item.id
+                  const isActive = location.pathname === item.path || 
+                                   (item.id === 'databases' && location.pathname.startsWith('/databases'))
                   return (
-                    <Button
-                      key={item.id}
-                      variant={isActive ? 'default' : 'ghost'}
-                      className="w-full justify-start"
-                      onClick={() => setCurrentPage(item.id)}
-                    >
-                      <Icon className="w-5 h-5 mr-3" />
-                      {item.label}
-                    </Button>
+                    <NavLink key={item.id} to={item.path}>
+                      {({ isActive: routeActive }) => (
+                        <Button
+                          variant={(isActive || routeActive) ? 'default' : 'ghost'}
+                          className="w-full justify-start"
+                        >
+                          <Icon className="w-5 h-5 mr-3" />
+                          {item.label}
+                        </Button>
+                      )}
+                    </NavLink>
                   )
                 })}
               </nav>
@@ -93,9 +97,12 @@ function AppContent() {
 
           {/* Main Content */}
           <main className="flex-1">
-            {currentPage === 'dashboard' && <Dashboard />}
-            {currentPage === 'groups' && <Groups />}
-            {currentPage === 'databases' && <Databases />}
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/groups" element={<Groups />} />
+              <Route path="/databases" element={<Databases />} />
+              <Route path="/databases/:id" element={<DatabaseDetail />} />
+            </Routes>
           </main>
         </div>
       </div>
@@ -106,9 +113,14 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/*" element={<AppLayout />} />
+        </Routes>
+      </BrowserRouter>
     </AuthProvider>
   )
 }
 
 export default App
+

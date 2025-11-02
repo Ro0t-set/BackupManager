@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, desc
 from typing import List
 from app.core.database import get_db
 from app.core.deps import get_current_user
@@ -9,7 +9,21 @@ from app.models.user import User
 from app.models.database import Database
 from app.models.group import Group
 from app.models.backup import Backup, BackupStatus
-from app.schemas.database import DatabaseCreate, DatabaseUpdate, DatabaseResponse, DatabaseWithStats
+from app.models.schedule import Schedule
+from app.models.backup_destination import BackupDestination, DestinationStatus
+from app.schemas.database import (
+    DatabaseCreate, 
+    DatabaseUpdate, 
+    DatabaseResponse, 
+    DatabaseWithStats,
+    DatabaseDetailResponse,
+    ScheduleDetailItem,
+    BackupDetailItem,
+    BackupDestinationDetail,
+    DestinationFileInfo
+)
+from app.utils.file_verification import verify_backup_file
+from app.utils.database_connection import test_database_connection as test_db_conn
 
 router = APIRouter()
 
@@ -73,6 +87,166 @@ def get_database(
     }
 
     return DatabaseWithStats(**db_dict)
+
+
+@router.get("/{database_id}/details", response_model=DatabaseDetailResponse)
+def get_database_details(
+    database_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get complete database details including:
+    - Database information
+    - All schedules with statistics
+    - Recent backups (last 10) with file verification
+    - Overall statistics
+    """
+    database = db.query(Database).filter(Database.id == database_id).first()
+    if not database:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Database not found"
+        )
+
+    # Get overall backup statistics
+    total_backups = db.query(func.count(Backup.id)).filter(
+        Backup.database_id == database_id
+    ).scalar() or 0
+    
+    successful_backups = db.query(func.count(Backup.id)).filter(
+        Backup.database_id == database_id,
+        Backup.status == BackupStatus.COMPLETED
+    ).scalar() or 0
+    
+    failed_backups = db.query(func.count(Backup.id)).filter(
+        Backup.database_id == database_id,
+        Backup.status == BackupStatus.FAILED
+    ).scalar() or 0
+    
+    total_backup_size = db.query(func.sum(Backup.file_size)).filter(
+        Backup.database_id == database_id,
+        Backup.status == BackupStatus.COMPLETED
+    ).scalar() or 0
+
+    # Get all schedules with their statistics
+    schedules_list = []
+    for schedule in database.schedules:
+        schedule_backups = db.query(func.count(Backup.id)).filter(
+            Backup.schedule_id == schedule.id
+        ).scalar() or 0
+        
+        schedule_successful = db.query(func.count(Backup.id)).filter(
+            Backup.schedule_id == schedule.id,
+            Backup.status == BackupStatus.COMPLETED
+        ).scalar() or 0
+        
+        schedule_failed = db.query(func.count(Backup.id)).filter(
+            Backup.schedule_id == schedule.id,
+            Backup.status == BackupStatus.FAILED
+        ).scalar() or 0
+        
+        schedule_item = ScheduleDetailItem(
+            id=schedule.id,
+            name=schedule.name,
+            description=schedule.description,
+            schedule_type=schedule.schedule_type.value,
+            cron_expression=schedule.cron_expression,
+            interval_value=schedule.interval_value,
+            retention_days=schedule.retention_days,
+            max_backups=schedule.max_backups,
+            is_active=schedule.is_active,
+            last_run_at=schedule.last_run_at,
+            next_run_at=schedule.next_run_at,
+            created_at=schedule.created_at,
+            updated_at=schedule.updated_at,
+            total_backups=schedule_backups,
+            successful_backups=schedule_successful,
+            failed_backups=schedule_failed
+        )
+        schedules_list.append(schedule_item)
+
+    # Get last 10 backups with file verification for all destinations
+    recent_backups_query = db.query(Backup).filter(
+        Backup.database_id == database_id
+    ).order_by(desc(Backup.created_at)).limit(10).all()
+    
+    recent_backups_list = []
+    for backup in recent_backups_query:
+        # Get all destinations for this backup
+        destinations_list = []
+        
+        if backup.destinations and len(backup.destinations) > 0:
+            # New multi-destination backups
+            for destination in backup.destinations:
+                # Verify file for completed destinations
+                file_info = None
+                if destination.status == DestinationStatus.COMPLETED:
+                    # Use base_path if provided, otherwise use default
+                    file_verification = verify_backup_file(
+                        destination.file_path, 
+                        base_path=destination.base_path
+                    )
+                    file_info = DestinationFileInfo(**file_verification)
+                
+                destination_detail = BackupDestinationDetail(
+                    id=destination.id,
+                    storage_type=destination.storage_type.value,
+                    storage_name=destination.storage_name,
+                    file_path=destination.file_path,
+                    base_path=destination.base_path,
+                    file_size=destination.file_size,
+                    checksum=destination.checksum,
+                    status=destination.status.value,
+                    error_message=destination.error_message,
+                    upload_started_at=destination.upload_started_at,
+                    upload_completed_at=destination.upload_completed_at,
+                    upload_duration_seconds=destination.upload_duration_seconds,
+                    priority=destination.priority,
+                    file_info=file_info
+                )
+                destinations_list.append(destination_detail)
+        
+        # Sort destinations by priority
+        destinations_list.sort(key=lambda d: d.priority)
+        
+        backup_item = BackupDetailItem(
+            id=backup.id,
+            name=backup.name,
+            database_id=backup.database_id,
+            schedule_id=backup.schedule_id,
+            status=backup.status.value,
+            error_message=backup.error_message,
+            started_at=backup.started_at,
+            completed_at=backup.completed_at,
+            duration_seconds=backup.duration_seconds,
+            created_at=backup.created_at,
+            is_compressed=backup.is_compressed,
+            compression_type=backup.compression_type,
+            destinations=destinations_list,
+            # Legacy fields for backward compatibility
+            storage_type=backup.storage_type.value if backup.storage_type else None,
+            file_path=backup.file_path,
+            file_size=backup.file_size
+        )
+        recent_backups_list.append(backup_item)
+
+    # Get group name
+    group_name = database.group.name if database.group else None
+
+    # Build response
+    response_data = {
+        **database.__dict__,
+        "total_backups": total_backups,
+        "successful_backups": successful_backups,
+        "failed_backups": failed_backups,
+        "total_backup_size": total_backup_size,
+        "schedules": schedules_list,
+        "recent_backups": recent_backups_list,
+        "group_name": group_name
+    }
+
+    return DatabaseDetailResponse(**response_data)
 
 
 @router.post("/", response_model=DatabaseResponse, status_code=status.HTTP_201_CREATED)
@@ -190,7 +364,7 @@ def test_database_connection(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Test database connection"""
+    """Test database connection for an existing database"""
     database = db.query(Database).filter(Database.id == database_id).first()
     if not database:
         raise HTTPException(
@@ -198,10 +372,48 @@ def test_database_connection(
             detail="Database not found"
         )
 
-    # TODO: Implement actual connection test based on db_type
-    # For now, return a success message
+    # Decrypt password
+    decrypted_password = decrypt_password(database.password)
+    
+    # Test connection
+    success, message = test_db_conn(
+        db_type=database.db_type.value,
+        host=database.host,
+        port=database.port,
+        username=database.username,
+        password=decrypted_password,
+        database=database.database_name
+    )
+    
     return {
-        "success": True,
-        "message": f"Connection test for {database.name} would be performed here",
-        "db_type": database.db_type.value
+        "success": success,
+        "message": message,
+        "db_type": database.db_type.value,
+        "host": database.host,
+        "port": database.port
+    }
+
+
+@router.post("/test-connection", status_code=status.HTTP_200_OK)
+def test_new_database_connection(
+    connection_data: DatabaseCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Test database connection with provided credentials (before saving)"""
+    # Test connection without saving to database
+    success, message = test_db_conn(
+        db_type=connection_data.db_type.value,
+        host=connection_data.host,
+        port=connection_data.port,
+        username=connection_data.username,
+        password=connection_data.password,  # Plain password from form
+        database=connection_data.database_name
+    )
+    
+    return {
+        "success": success,
+        "message": message,
+        "db_type": connection_data.db_type.value,
+        "host": connection_data.host,
+        "port": connection_data.port
     }

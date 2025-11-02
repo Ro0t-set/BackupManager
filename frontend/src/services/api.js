@@ -95,6 +95,10 @@ class ApiService {
     return this.request(`/databases/${id}`)
   }
 
+  async getDatabaseDetails(id) {
+    return this.request(`/databases/${id}/details`)
+  }
+
   async createDatabase(databaseData) {
     return this.request('/databases', {
       method: 'POST',
@@ -118,6 +122,81 @@ class ApiService {
   async testDatabaseConnection(id) {
     return this.request(`/databases/${id}/test`, {
       method: 'POST',
+    })
+  }
+
+  async testNewDatabaseConnection(databaseData) {
+    return this.request('/databases/test-connection', {
+      method: 'POST',
+      body: JSON.stringify(databaseData),
+    })
+  }
+
+  // Backup Destinations endpoints
+  async getBackupDestinations(backupId) {
+    return this.request(`/backups/${backupId}/destinations`)
+  }
+
+  async createBackupDestination(backupId, destinationData) {
+    return this.request(`/backups/${backupId}/destinations`, {
+      method: 'POST',
+      body: JSON.stringify(destinationData),
+    })
+  }
+
+  async updateBackupDestination(backupId, destinationId, destinationData) {
+    return this.request(`/backups/${backupId}/destinations/${destinationId}`, {
+      method: 'PUT',
+      body: JSON.stringify(destinationData),
+    })
+  }
+
+  async deleteBackupDestination(backupId, destinationId) {
+    return this.request(`/backups/${backupId}/destinations/${destinationId}`, {
+      method: 'DELETE',
+    })
+  }
+
+  // Schedules endpoints
+  async getSchedules(databaseId = null) {
+    const query = databaseId ? `?database_id=${databaseId}` : ''
+    return this.request(`/schedules/${query}`)
+  }
+
+  async getSchedule(id) {
+    return this.request(`/schedules/${id}`)
+  }
+
+  async createSchedule(scheduleData) {
+    return this.request('/schedules/', {
+      method: 'POST',
+      body: JSON.stringify(scheduleData),
+    })
+  }
+
+  async updateSchedule(id, scheduleData) {
+    return this.request(`/schedules/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(scheduleData),
+    })
+  }
+
+  async deleteSchedule(id) {
+    return this.request(`/schedules/${id}`, {
+      method: 'DELETE',
+    })
+  }
+
+  // Backups endpoints
+  async getBackups(databaseId = null) {
+    const query = databaseId ? `?database_id=${databaseId}` : ''
+    return this.request(`/backups${query}`)
+  }
+
+  async triggerManualBackup(databaseId) {
+    return this.request('/backups/manual', {
+      method: 'POST',
+      body: JSON.stringify({ database_id: databaseId }),
     })
   }
 
