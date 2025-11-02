@@ -4,6 +4,10 @@ title: API
 
 # API
 
-Questa sezione descrive l’API del backend. La documentazione interattiva (Swagger/ReDoc) è disponibile sull’istanza backend quando attivata, ma non è linkata da questo sito di documentazione.
+This section describes the backend API. Interactive documentation (Swagger/ReDoc) is available on the backend instance when activated.
 
-Nota: in ambienti di produzione potresti esporre l’API dietro un reverse proxy; aggiorna qui eventuali riferimenti solo quando l’endpoint pubblico è definitivo.
+**Interactive API Documentation:**
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+
+Note: In production environments, you may expose the API behind a reverse proxy. Update references here only when the public endpoint is finalized.

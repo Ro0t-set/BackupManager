@@ -2,38 +2,38 @@
 title: Backend
 ---
 
-Il backend è scritto in FastAPI e organizza API, scheduler e gestione backup.
+The backend is written in FastAPI and organizes API, scheduler, and backup management.
 
-## Struttura principale
+## Main Structure
 
-- `backend/app/main.py` — entrypoint FastAPI
-- `backend/app/core/` — configurazioni core (database, sicurezza, scheduler, cifratura)
-- `backend/app/api/routes/` — router per risorse (auth, backups, databases, destinations, groups, ...)
-- `backend/app/models/` — modelli SQLAlchemy
-- `backend/app/schemas/` — schemi Pydantic
-- `backend/app/utils/` — utilità (esecuzione backup, connessione DB, verifica file)
-- `backend/alembic/` — migrazioni DB
+- `backend/app/main.py` — FastAPI entry point
+- `backend/app/core/` — Core configurations (database, security, scheduler, encryption)
+- `backend/app/api/routes/` — Resource routers (auth, backups, databases, destinations, groups, etc.)
+- `backend/app/models/` — SQLAlchemy models
+- `backend/app/schemas/` — Pydantic schemas
+- `backend/app/utils/` — Utilities (backup execution, DB connection, file verification)
+- `backend/alembic/` — Database migrations
 
-## Esecuzione locale
+## Local Execution
 
 ```bash
 pip install -r backend/requirements.txt
 uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-## Migrazioni (Alembic)
+## Migrations (Alembic)
 
-Script utili:
+Useful scripts:
 
 ```bash
-# genera una nuova migrazione
-./scripts/generate-migration.sh "descrizione"
+# generate a new migration
+./scripts/generate-migration.sh "description"
 
-# applica le migrazioni
+# apply migrations
 alembic -c backend/alembic.ini upgrade head
 ```
 
-## Scheduler e Backup
+## Scheduler and Backup
 
-La logica di pianificazione/avvio backup risiede in `backend/app/core/scheduler.py` e utility correlate in `backend/app/utils/`.
-Consulta anche `backend/MULTI_DESTINATION_BACKUPS.md` per il design multi-destinazione.
+The scheduling and backup execution logic resides in `backend/app/core/scheduler.py` and related utilities in `backend/app/utils/`.
+See also `backend/MULTI_DESTINATION_BACKUPS.md` for the multi-destination design.

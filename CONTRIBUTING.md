@@ -212,4 +212,4 @@ We welcome feature requests! Please:
 
 Feel free to open a GitHub Discussion or reach out to the maintainers.
 
-Thank you for contributing! 🎉
+Thank you for contributing!

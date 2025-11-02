@@ -25,7 +25,7 @@ Get BackupManager up and running in 5 minutes!
    - Backend API: http://localhost:8000
    - API Docs: http://localhost:8000/docs
 
-That's it! 🎉
+That's it!
 
 ## Option 2: Local Development
 
@@ -73,7 +73,7 @@ Default credentials:
 - Email: `admin@backupmanager.local`
 - Password: `admin123`
 
-⚠️ **Change the password after first login!**
+**Important:** Change the password after first login!
 
 ### 2. Configure Your First Backup
 
@@ -207,9 +207,7 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for production deployment guide.
 
 ## Getting Help
 
-- 📖 Read the [README.md](README.md)
-- 🐛 Report issues on GitHub
-- 💬 Check existing GitHub Discussions
-- 📚 API Documentation: http://localhost:8000/docs
-
-Happy backing up! 💾
+- Read the [README.md](README.md)
+- Report issues on GitHub
+- Check existing GitHub Discussions
+- API Documentation: http://localhost:8000/docs

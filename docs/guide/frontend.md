@@ -2,26 +2,26 @@
 title: Frontend
 ---
 
-Il frontend è un'app React con Vite e Tailwind.
+The frontend is a React app with Vite and Tailwind.
 
-## Comandi principali
+## Main Commands
 
 ```bash
 cd frontend
 npm install
 
-# sviluppo
+# development
 npm run dev
 
-# build di produzione
+# production build
 npm run build
 
-# anteprima locale della build
+# local build preview
 npm run preview
 ```
 
-## Struttura
+## Structure
 
-- `frontend/src/` — App, pagine, componenti e servizi API
-- `frontend/tailwind.config.js` — configurazione Tailwind
-- `frontend/vite.config.js` — config Vite
+- `frontend/src/` — App, pages, components and API services
+- `frontend/tailwind.config.js` — Tailwind configuration
+- `frontend/vite.config.js` — Vite configuration

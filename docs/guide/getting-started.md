@@ -2,33 +2,33 @@
 title: Getting Started
 ---
 
-Questa guida ti porta dall'installazione locale al primo avvio dell'applicazione.
+This guide covers installation and first run of the application.
 
-## Prerequisiti
+## Prerequisites
 
-- macOS, Linux o Windows
-- Docker (consigliato per sviluppo rapido) oppure Python 3.11+
-- Node.js 18+ (per il frontend e la documentazione)
+- macOS, Linux, or Windows
+- Docker (recommended for rapid development) or Python 3.11+
+- Node.js 18+ (for frontend and documentation)
 
-## Avvio rapido con Docker
+## Quick Start with Docker
 
-1. Copia i file di esempio (se necessari) e crea l'utente admin:
-2. Avvia gli stack di Backend e Frontend:
+1. Run the setup script and create admin user:
+2. Start Backend and Frontend stacks:
 
 ```bash
-# dalla root del progetto
+# from project root
 ./scripts/dev-setup.sh
 docker compose -f docker-compose.dev.yml up --build
 ```
 
-L'app sarà disponibile sul portale frontend (vedi nginx.conf) e il backend FastAPI sulla porta configurata.
+The app will be available on the frontend portal (see nginx.conf) and the FastAPI backend on the configured port.
 
-## Avvio senza Docker (sviluppo)
+## Running Without Docker (Development)
 
 Backend (FastAPI):
 
 ```bash
-# dalla root del progetto
+# from project root
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r backend/requirements.txt
 uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
@@ -42,10 +42,10 @@ npm install
 npm run dev
 ```
 
-## Struttura del progetto
+## Project Structure
 
-- `backend/` — API in FastAPI, scheduler, modelli e migrazioni (alembic)
-- `frontend/` — interfaccia React (Vite + Tailwind)
-- `scripts/` — script di utilità (setup, migrazioni, build)
+- `backend/` — FastAPI API, scheduler, models and migrations (alembic)
+- `frontend/` — React interface (Vite + Tailwind)
+- `scripts/` — Utility scripts (setup, migrations, build)
 
-Prosegui con i dettagli su [Backend](/guide/backend) e [Frontend](/guide/frontend).
+Continue with details on [Backend](/guide/backend) and [Frontend](/guide/frontend).

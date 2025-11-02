@@ -2,34 +2,32 @@
 layout: home
 hero:
   name: BackupManager
-  text: Gestione automatizzata dei backup
-  tagline: FastAPI + React • multi-destinazione • pianificazione • verifica integrità
+  text: Automated Backup Management
+  tagline: FastAPI + React • Multi-destination • Scheduling • Integrity Verification
   actions:
     - theme: brand
-      text: Inizia ora
+      text: Get Started
       link: /guide/getting-started
     - theme: alt
       text: Repository
       link: https://github.com/Ro0t-set/BackupManager
 features:
-  - title: Pianificazione
-    details: Scheduler integrato per backup regolari con gestione delle finestre temporali.
-  - title: Multi-destinazione
-    details: Invia i backup verso storage multipli (locale/S3/…); design estendibile via adapter.
-  - title: Sicurezza
-    details: Cifratura e verifica file per assicurare integrità e confidenzialità.
+  - title: Scheduling
+    details: Integrated scheduler for regular backups with time window management.
+  - title: Multi-destination
+    details: Send backups to multiple storage locations (local/S3/etc.); extensible adapter design.
+  - title: Security
+    details: Encryption and file verification to ensure integrity and confidentiality.
 ---
 
-## Cos'è BackupManager?
+## What is BackupManager?
 
-BackupManager è una piattaforma per orchestrare backup di database e file, con un backend in FastAPI e un frontend in React (Vite), pensata per ambienti multi-destinazione e con scheduler integrato.
+BackupManager is a platform for orchestrating database and file backups, with a FastAPI backend and React (Vite) frontend, designed for multi-destination environments with integrated scheduling.
 
-Per iniziare vai alla guida rapida: [/guide/getting-started](/guide/getting-started).
+To get started, visit the quick start guide: [Getting Started](/guide/getting-started).
 
-### Anteprima
+### Preview
 
 ![Dashboard](./img/dashboard.png)
 
-![Connessioni DB](./img/db.png)
-
-<!-- trigger deploy: update docs -->
+![Database Connections](./img/db.png)

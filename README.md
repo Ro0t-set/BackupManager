@@ -1,17 +1,17 @@
-# BackupManager 🗄️
+# BackupManager
 
 A powerful, full-stack web application for managing automated backups across multiple database systems.
 
 ## Features
 
-- 🎯 **Multi-Database Support**: PostgreSQL, MySQL, MongoDB, Redis
-- 📅 **Flexible Scheduling**: Cron-based automated backups
-- 🔐 **Secure Credentials**: Encrypted database passwords using Fernet
-- 📊 **Dashboard & Analytics**: Track backup status and storage usage
-- 🔄 **Manual Triggers**: On-demand backup execution
-- 🗂️ **Multi-Destination**: Save backups to multiple locations
-- ♻️ **Retention Policies**: Automatic cleanup of old backups
-- 🚀 **Modern Stack**: FastAPI backend + React frontend
+- **Multi-Database Support**: PostgreSQL, MySQL, MongoDB, Redis
+- **Flexible Scheduling**: Cron-based automated backups
+- **Secure Credentials**: Encrypted database passwords using Fernet
+- **Dashboard & Analytics**: Track backup status and storage usage
+- **Manual Triggers**: On-demand backup execution
+- **Multi-Destination**: Save backups to multiple locations
+- **Retention Policies**: Automatic cleanup of old backups
+- **Modern Stack**: FastAPI backend + React frontend
 
 ## Tech Stack
 
@@ -217,17 +217,17 @@ Interactive API documentation available at:
 
 ## Roadmap
 
-- [ ] Implement core backend models and API
-- [ ] Build database adapters
-- [ ] Create custom scheduler
-- [ ] Develop frontend components
-- [ ] Add email notifications
-- [ ] Implement backup restore functionality
-- [ ] Add incremental backups
+- [x] Core backend models and API
+- [x] Database adapters
+- [x] Custom scheduler
+- [x] Frontend components
+- [ ] Email notifications
+- [ ] Backup restore functionality
+- [ ] Incremental backups
 - [ ] Cloud storage integration (S3, Azure Blob)
 - [ ] Webhook support
 - [ ] Multi-user management
-- [ ] Backup encryption
+- [ ] Advanced backup encryption
 
 ## Contributing
 
@@ -241,21 +241,11 @@ Interactive API documentation available at:
 
 MIT License - see LICENSE file for details
 
-## Support
+## Documentation
 
-For issues and questions:
-- GitHub Issues: [Create an issue]
-- Documentation: [Wiki]
+The official documentation is built with VitePress and deployed to GitHub Pages.
 
----
-
-**Note**: This project is in active development. Some features may not be fully implemented yet.
-
-## Documentation (VitePress + GitHub Pages)
-
-La documentazione ufficiale è in `docs/` (VitePress) ed è pubblicata automaticamente su GitHub Pages.
-
-Sviluppo locale della doc:
+**Local development:**
 
 ```bash
 cd docs
@@ -263,15 +253,17 @@ npm install
 npm run docs:dev
 ```
 
-Build/preview locale:
+**Build and preview:**
 
 ```bash
 npm run docs:build
 npm run docs:preview
 ```
 
-Deploy automatico:
+**Deployment:**
 
-- Un push su `main` che modifica `docs/**` attiva il workflow "Deploy Docs (VitePress)" che builda e pubblica su GitHub Pages.
-- Il dominio personalizzato è `www.tommasopatriti.me` (incluso nel build tramite `docs/public/CNAME`).
-- Assicurati di avere un record DNS CNAME: `www` → `ro0t-set.github.io` e di impostare in GitHub → Settings → Pages la sorgente "GitHub Actions" e il Custom domain `www.tommasopatriti.me` (con TLS automatico).
+Documentation is automatically deployed to GitHub Pages when changes are pushed to `main`. The site is available at your configured custom domain.
+
+## Support
+
+For issues and questions, please use GitHub Issues or refer to the documentation.
