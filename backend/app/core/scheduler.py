@@ -144,7 +144,9 @@ def cleanup_old_backups(db: Session, schedule: Schedule):
                                     except Exception as e:
                                         logger.error(f"Error deleting file {file_path}: {str(e)}")
                                 else:
-                                    logger.warning(f"Backup file not found: {file_path}")
+                                    # File not found - likely external destination not mounted in container
+                                    # This is normal and not an error
+                                    logger.debug(f"Backup file not accessible (external destination): {file_path}")
                     except json.JSONDecodeError as e:
                         logger.error(f"Error parsing destination_results for backup {backup.id}: {str(e)}")
                 

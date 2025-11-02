@@ -68,6 +68,7 @@ def get_dashboard_stats(
         recent_backups_data.append({
             "id": backup.id,
             "name": backup.name,
+            "database_id": backup.database_id,
             "database_name": backup.database.name,
             "status": backup.status.value,
             "created_at": backup.created_at.isoformat() if backup.created_at else None,
@@ -124,7 +125,7 @@ def get_dashboard_stats(
                 group_last_backup = last_backup.created_at
         
         group_success_rate = (group_success_count / group_total_count * 100) if group_total_count > 0 else 0
-        
+
         group_stats.append({
             "id": group.id,
             "name": group.name,

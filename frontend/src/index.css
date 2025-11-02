@@ -8,8 +8,6 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -59,30 +57,30 @@ body {
     --radius: 0.5rem;
   }
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 270 55% 60%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 262 15% 15%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 262 15% 15%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --background: 220 15% 12%;
+    --foreground: 220 10% 88%;
+    --card: 220 14% 15%;
+    --card-foreground: 220 10% 88%;
+    --popover: 220 14% 15%;
+    --popover-foreground: 220 10% 88%;
+    --primary: 250 40% 58%;
+    --primary-foreground: 220 15% 12%;
+    --secondary: 220 12% 20%;
+    --secondary-foreground: 220 10% 85%;
+    --muted: 220 12% 18%;
+    --muted-foreground: 220 8% 60%;
+    --accent: 220 12% 20%;
+    --accent-foreground: 220 10% 85%;
+    --destructive: 0 50% 48%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 270 55% 60%;
-    --chart-1: 270 55% 60%;
-    --chart-2: 280 50% 62%;
-    --chart-3: 245 45% 55%;
-    --chart-4: 290 40% 65%;
-    --chart-5: 255 55% 58%;
+    --border: 220 12% 22%;
+    --input: 220 12% 22%;
+    --ring: 250 40% 58%;
+    --chart-1: 250 40% 58%;
+    --chart-2: 260 38% 60%;
+    --chart-3: 240 38% 56%;
+    --chart-4: 270 36% 62%;
+    --chart-5: 255 40% 60%;
   }
 }
 

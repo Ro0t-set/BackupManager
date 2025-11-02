@@ -5,6 +5,7 @@ from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.models.user import User
 from app.models.group import Group
+from app.models.database import Database
 from app.schemas.group import GroupCreate, GroupUpdate, GroupResponse
 
 router = APIRouter()
@@ -17,9 +18,23 @@ def list_groups(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Get all groups"""
+    """Get all groups with database count"""
     groups = db.query(Group).offset(skip).limit(limit).all()
-    return groups
+
+    # Add database count to each group
+    result = []
+    for group in groups:
+        group_dict = {
+            "id": group.id,
+            "name": group.name,
+            "description": group.description,
+            "created_at": group.created_at,
+            "created_by": group.created_by,
+            "database_count": db.query(Database).filter(Database.group_id == group.id).count()
+        }
+        result.append(group_dict)
+
+    return result
 
 
 @router.get("/{group_id}", response_model=GroupResponse)
@@ -136,3 +151,33 @@ def delete_group(
     db.commit()
 
     return None
+
+
+@router.get("/{group_id}/databases")
+def get_group_databases(
+    group_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get all databases in a group"""
+    group = db.query(Group).filter(Group.id == group_id).first()
+    if not group:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Group not found"
+        )
+
+    databases = db.query(Database).filter(Database.group_id == group_id).all()
+
+    result = []
+    for database in databases:
+        result.append({
+            "id": database.id,
+            "name": database.name,
+            "db_type": database.db_type,
+            "host": database.host,
+            "port": database.port,
+            "is_active": database.is_active
+        })
+
+    return result

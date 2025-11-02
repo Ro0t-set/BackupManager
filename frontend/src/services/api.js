@@ -81,6 +81,10 @@ class ApiService {
     })
   }
 
+  async getGroupDatabases(groupId) {
+    return this.request(`/groups/${groupId}/databases`)
+  }
+
   // Databases endpoints
   async getDatabases(groupId = null) {
     const query = groupId ? `?group_id=${groupId}` : ''

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { FolderOpen, Plus, Edit, Trash2, Loader2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { FolderOpen, Plus, Edit, Trash2, Loader2, Database, AlertTriangle, ArrowRight } from 'lucide-react'
 import api from '@/services/api'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -15,12 +16,26 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
 function Groups() {
+  const navigate = useNavigate()
   const [groups, setGroups] = useState([])
+  const [groupDatabases, setGroupDatabases] = useState({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showModal, setShowModal] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [groupToDelete, setGroupToDelete] = useState(null)
   const [editingGroup, setEditingGroup] = useState(null)
   const [formData, setFormData] = useState({ name: '', description: '' })
 
@@ -33,6 +48,19 @@ function Groups() {
       setLoading(true)
       const data = await api.getGroups()
       setGroups(data)
+
+      // Load databases for each group
+      const dbData = {}
+      for (const group of data) {
+        try {
+          const databases = await api.getGroupDatabases(group.id)
+          dbData[group.id] = databases
+        } catch (err) {
+          console.error(`Failed to load databases for group ${group.id}:`, err)
+          dbData[group.id] = []
+        }
+      }
+      setGroupDatabases(dbData)
       setError('')
     } catch (err) {
       setError('Failed to load groups')
@@ -68,14 +96,22 @@ function Groups() {
     setShowModal(true)
   }
 
-  const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this group?')) return
+  const handleDeleteClick = (group) => {
+    setGroupToDelete(group)
+    setShowDeleteDialog(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!groupToDelete) return
 
     try {
-      await api.deleteGroup(id)
+      await api.deleteGroup(groupToDelete.id)
+      setShowDeleteDialog(false)
+      setGroupToDelete(null)
       loadGroups()
     } catch (err) {
       setError(err.message || 'Failed to delete group')
+      setShowDeleteDialog(false)
     }
   }
 
@@ -128,46 +164,87 @@ function Groups() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {groups.map((group) => (
-            <Card key={group.id}>
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <FolderOpen className="w-8 h-8 text-primary" />
-                  <div>
-                    <CardTitle className="text-lg">{group.name}</CardTitle>
-                    <CardDescription>
-                      {new Date(group.created_at).toLocaleDateString()}
-                    </CardDescription>
+          {groups.map((group) => {
+            const databases = groupDatabases[group.id] || []
+            return (
+              <Card key={group.id}>
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <FolderOpen className="w-8 h-8 text-primary" />
+                    <div className="flex-1">
+                      <CardTitle className="text-lg">{group.name}</CardTitle>
+                      <CardDescription>
+                        {group.database_count || 0} database{group.database_count !== 1 ? 's' : ''}
+                      </CardDescription>
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {group.description && (
-                  <p className="text-sm text-muted-foreground mb-4">{group.description}</p>
-                )}
-                <div className="flex gap-2 pt-4 border-t">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => handleEdit(group)}
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => handleDelete(group.id)}
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardHeader>
+                <CardContent>
+                  {group.description && (
+                    <p className="text-sm text-muted-foreground mb-4">{group.description}</p>
+                  )}
+
+                  {/* Databases List */}
+                  {databases.length > 0 && (
+                    <div className="mb-4 space-y-2">
+                      <div className="text-xs font-medium text-muted-foreground mb-2">DATABASES</div>
+                      <div className="space-y-2 max-h-40 overflow-y-auto">
+                        {databases.map((db) => (
+                          <div
+                            key={db.id}
+                            onClick={() => navigate(`/databases/${db.id}`)}
+                            className="flex items-center gap-2 p-2 rounded-md bg-muted/50 hover:bg-muted transition-colors cursor-pointer group"
+                          >
+                            <div className={`p-1.5 rounded ${
+                              db.db_type === 'postgresql' ? 'bg-blue-500/10' :
+                              db.db_type === 'mysql' ? 'bg-orange-500/10' :
+                              db.db_type === 'mongodb' ? 'bg-green-500/10' :
+                              'bg-muted'
+                            }`}>
+                              <Database className={`h-3 w-3 ${
+                                db.db_type === 'postgresql' ? 'text-blue-500' :
+                                db.db_type === 'mysql' ? 'text-orange-500' :
+                                db.db_type === 'mongodb' ? 'text-green-500' :
+                                'text-muted-foreground'
+                              }`} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium truncate">{db.name}</div>
+                              <div className="text-xs text-muted-foreground truncate">
+                                {db.host}:{db.port}
+                              </div>
+                            </div>
+                            <ArrowRight className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex gap-2 pt-4 border-t">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => handleEdit(group)}
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Edit
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => handleDeleteClick(group)}
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
       )}
 
@@ -226,6 +303,58 @@ function Groups() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Delete Group "{groupToDelete?.name}"?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-3">
+              <p>This action cannot be undone. This will permanently delete:</p>
+              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 space-y-2">
+                <div className="flex items-center gap-2 text-sm">
+                  <FolderOpen className="h-4 w-4 text-destructive" />
+                  <span className="font-medium">The group and all its settings</span>
+                </div>
+                {groupToDelete && groupDatabases[groupToDelete.id]?.length > 0 && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Database className="h-4 w-4 text-destructive" />
+                    <span className="font-medium">
+                      {groupDatabases[groupToDelete.id].length} database{groupDatabases[groupToDelete.id].length !== 1 ? 's' : ''} in this group
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-center gap-2 text-sm">
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                  <span className="font-medium">All associated backups and schedules</span>
+                </div>
+              </div>
+              {groupToDelete && groupDatabases[groupToDelete.id]?.length > 0 && (
+                <div className="text-xs text-muted-foreground">
+                  <p className="font-medium mb-1">Databases that will be deleted:</p>
+                  <ul className="list-disc list-inside space-y-0.5">
+                    {groupDatabases[groupToDelete.id].map(db => (
+                      <li key={db.id}>{db.name} ({db.host}:{db.port})</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete Permanently
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
