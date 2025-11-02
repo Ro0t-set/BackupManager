@@ -25,8 +25,8 @@ class ScheduleBase(BaseModel):
     def validate_interval(cls, v: Optional[str], info) -> Optional[str]:
         if info.data.get('schedule_type') == ScheduleType.INTERVAL and not v:
             raise ValueError('interval_value is required when schedule_type is INTERVAL')
-        if v and v not in ['hourly', 'daily', 'weekly', 'monthly']:
-            raise ValueError('interval_value must be one of: hourly, daily, weekly, monthly')
+        if v and v not in ['minute', 'hourly', 'daily', 'weekly', 'monthly']:
+            raise ValueError('interval_value must be one of: minute, hourly, daily, weekly, monthly')
         return v
 
 

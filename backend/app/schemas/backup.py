@@ -24,9 +24,10 @@ class BackupResponse(BackupBase):
     id: int
     database_id: int
     schedule_id: Optional[int] = None
-    file_path: str
+    file_path: Optional[str] = None
     file_size: Optional[int] = None
     checksum: Optional[str] = None
+    destination_results: Optional[str] = None  # JSON string with multi-destination results
     status: BackupStatus
     error_message: Optional[str] = None
     started_at: Optional[datetime] = None

@@ -98,10 +98,11 @@ class BackupDetailItem(BaseModel):
     created_at: datetime
     is_compressed: bool
     compression_type: Optional[str] = None
-    
+
     # Multi-destination support
     destinations: List[BackupDestinationDetail] = []
-    
+    destination_results: Optional[str] = None  # JSON string with multi-destination results
+
     # Legacy fields (for backward compatibility with old backups)
     storage_type: Optional[str] = None
     file_path: Optional[str] = None

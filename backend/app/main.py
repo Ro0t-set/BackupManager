@@ -5,6 +5,7 @@ import os
 
 from app.core.database import init_db, SessionLocal
 from app.core.init_admin import create_default_admin
+from app.core.scheduler import start_scheduler, stop_scheduler
 from app.api.routes import auth, groups, databases, schedules, destinations, backups
 
 
@@ -23,10 +24,15 @@ async def lifespan(app: FastAPI):
     finally:
         db.close()
 
+    # Start background scheduler
+    start_scheduler()
+
     yield
 
     # Shutdown
     print("👋 Shutting down BackupManager API...")
+    stop_scheduler()
+    print("✅ Background scheduler stopped")
 
 
 app = FastAPI(

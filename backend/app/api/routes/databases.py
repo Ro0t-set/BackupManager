@@ -173,13 +173,9 @@ def get_database_details(
     
     recent_backups_list = []
     for backup in recent_backups_query:
-        # Get all destinations for this backup
+        # Get all destinations for this backup (legacy, kept for backward compatibility)
         destinations_list = []
-        
-        # TODO: Implement new multi-destination logic with destination_results JSON field
-        # For now, leaving destinations_list empty until we implement the new system
-        pass
-        
+
         backup_item = BackupDetailItem(
             id=backup.id,
             name=backup.name,
@@ -194,6 +190,7 @@ def get_database_details(
             is_compressed=backup.is_compressed,
             compression_type=backup.compression_type,
             destinations=destinations_list,
+            destination_results=backup.destination_results,  # Include multi-destination results JSON
             # Legacy fields for backward compatibility
             storage_type=backup.storage_type.value if backup.storage_type else None,
             file_path=backup.file_path,

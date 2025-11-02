@@ -18,23 +18,19 @@ class ApiService {
       ...options.headers,
     }
 
-    try {
-      const response = await fetch(url, {
-        ...options,
-        headers,
-      })
+    const response = await fetch(url, { ...options, headers })
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.detail || 'API request failed')
-      }
-
-      return data
-    } catch (error) {
-      console.error('API Error:', error)
-      throw error
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Request failed' }))
+      throw new Error(error.detail || `HTTP ${response.status}`)
     }
+
+    // Handle 204 No Content responses
+    if (response.status === 204) {
+      return null
+    }
+
+    return response.json()
   }
 
   // Auth endpoints
@@ -163,10 +159,6 @@ class ApiService {
     })
   }
 
-  async getDestinationStats(databaseId, destinationId) {
-    return this.request(`/databases/${databaseId}/destinations/${destinationId}/stats`)
-  }
-
   // Schedules endpoints
   async getSchedules(databaseId = null) {
     const query = databaseId ? `?database_id=${databaseId}` : ''
@@ -178,7 +170,7 @@ class ApiService {
   }
 
   async createSchedule(scheduleData) {
-    return this.request('/schedules/', {
+    return this.request('/schedules', {
       method: 'POST',
       body: JSON.stringify(scheduleData),
     })
@@ -208,6 +200,16 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify({ database_id: databaseId }),
     })
+  }
+
+  async deleteBackup(backupId, deleteFiles = false) {
+    return this.request(`/backups/${backupId}?delete_files=${deleteFiles}`, {
+      method: 'DELETE',
+    })
+  }
+
+  async verifyBackupFiles(backupId) {
+    return this.request(`/backups/${backupId}/verify`)
   }
 
   // Health check

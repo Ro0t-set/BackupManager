@@ -21,13 +21,13 @@ import { Loader2, AlertCircle } from 'lucide-react';
 import api from '@/services/api';
 
 const SCHEDULE_TYPES = [
-  { value: 'interval', label: 'Interval-based', intervals: ['hourly', 'daily', 'weekly', 'monthly'] },
+  { value: 'interval', label: 'Interval-based', intervals: ['minute', 'hourly', 'daily', 'weekly', 'monthly'] },
   { value: 'cron', label: 'Custom (Cron Expression)' },
-  { value: 'manual', label: 'Manual Only' },
 ];
 
 // Default cron expressions for interval types
 const INTERVAL_CRON = {
+  minute: '* * * * *',
   hourly: '0 * * * *',
   daily: '0 0 * * *',
   weekly: '0 0 * * 0',
@@ -88,9 +88,6 @@ function ScheduleModal({ open, onClose, schedule, databaseId, onSuccess }) {
     } else if (type === 'cron') {
       newFormData.interval_value = null;
       newFormData.cron_expression = '0 0 * * *';
-    } else if (type === 'manual') {
-      newFormData.interval_value = null;
-      newFormData.cron_expression = null;
     }
 
     setFormData(newFormData);
@@ -213,6 +210,7 @@ function ScheduleModal({ open, onClose, schedule, databaseId, onSuccess }) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="minute">Every Minute</SelectItem>
                     <SelectItem value="hourly">Every Hour</SelectItem>
                     <SelectItem value="daily">Every Day</SelectItem>
                     <SelectItem value="weekly">Every Week</SelectItem>
@@ -239,13 +237,6 @@ function ScheduleModal({ open, onClose, schedule, databaseId, onSuccess }) {
                 <p className="text-xs text-muted-foreground mt-1">
                   Format: minute hour day month weekday (e.g., "0 0 * * *" = daily at midnight)
                 </p>
-              </div>
-            )}
-
-            {/* Manual type message */}
-            {formData.schedule_type === 'manual' && (
-              <div className="bg-muted p-3 rounded-md text-sm text-muted-foreground">
-                Manual schedules must be triggered manually. No automatic execution will occur.
               </div>
             )}
           </div>

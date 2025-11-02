@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import BackupDestinations from '@/components/Backups/BackupDestinations'
+import BackupDestinations from '@/components/Databases/BackupDestinations'
 import SchedulesList from '@/components/Schedules/SchedulesList'
 import DestinationList from '@/components/Databases/DestinationList'
 
@@ -342,11 +342,11 @@ function DatabaseDetail() {
                       </div>
                     )}
 
-                    {/* Destinations */}
-                    {backup.destinations && backup.destinations.length > 0 && (
-                      <BackupDestinations 
-                        destinations={backup.destinations}
+                    {/* Destination Results */}
+                    {backup.destination_results && (
+                      <BackupDestinations
                         backupId={backup.id}
+                        destinationResults={backup.destination_results}
                         onUpdate={handleRefresh}
                       />
                     )}
