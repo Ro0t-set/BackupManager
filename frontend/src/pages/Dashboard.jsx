@@ -147,17 +147,15 @@ function Dashboard() {
 
         {/* Success Rate Card with Donut Chart */}
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
-              Success Rate
-            </CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
+            <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {/* Donut Chart */}
-              <div className="relative w-20 h-20">
-                <svg className="w-20 h-20 -rotate-90" viewBox="0 0 36 36">
+              <div className="relative w-16 h-16 flex-shrink-0">
+                <svg className="w-16 h-16 -rotate-90" viewBox="0 0 36 36">
                   {/* Background circle */}
                   <circle
                     cx="18"
@@ -182,13 +180,14 @@ function Dashboard() {
                 </svg>
                 {/* Center percentage */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-lg font-bold">{stats.overview.success_rate}%</span>
+                  <span className="text-base font-bold">{stats.overview.success_rate}%</span>
                 </div>
               </div>
 
               {/* Stats */}
               <div className="flex-1">
-                <div className="text-xs text-muted-foreground">Last 30 days</div>
+                <div className="text-2xl font-bold">{stats.overview.success_rate}%</div>
+                <p className="text-xs text-muted-foreground mt-1">Last 30 days</p>
               </div>
             </div>
           </CardContent>

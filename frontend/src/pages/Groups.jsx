@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import DatabaseModal from '@/components/Databases/DatabaseModal'
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,8 @@ function Groups() {
   const [groupToDelete, setGroupToDelete] = useState(null)
   const [editingGroup, setEditingGroup] = useState(null)
   const [formData, setFormData] = useState({ name: '', description: '' })
+  const [showDatabaseModal, setShowDatabaseModal] = useState(false)
+  const [selectedGroupForDb, setSelectedGroupForDb] = useState(null)
 
   useEffect(() => {
     loadGroups()
@@ -121,6 +124,24 @@ function Groups() {
     setShowModal(true)
   }
 
+  const openDatabaseModal = (group) => {
+    setSelectedGroupForDb(group)
+    setShowDatabaseModal(true)
+  }
+
+  const handleDatabaseSubmit = async (formData) => {
+    setError('')
+
+    try {
+      await api.createDatabase(formData)
+      setShowDatabaseModal(false)
+      setSelectedGroupForDb(null)
+      loadGroups()
+    } catch (err) {
+      setError(err.message || 'Failed to create database')
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -163,37 +184,66 @@ function Groups() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="space-y-4">
           {groups.map((group) => {
             const databases = groupDatabases[group.id] || []
             return (
-              <Card key={group.id}>
+              <Card key={group.id} className="hover:bg-muted/30 transition-all">
                 <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <FolderOpen className="w-8 h-8 text-primary" />
-                    <div className="flex-1">
-                      <CardTitle className="text-lg">{group.name}</CardTitle>
-                      <CardDescription>
-                        {group.database_count || 0} database{group.database_count !== 1 ? 's' : ''}
-                      </CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <FolderOpen className="w-6 h-6 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <CardTitle className="text-xl">{group.name}</CardTitle>
+                        {group.description && (
+                          <CardDescription className="mt-1">{group.description}</CardDescription>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={() => openDatabaseModal(group)}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Database
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(group)}
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDeleteClick(group)}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </Button>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  {group.description && (
-                    <p className="text-sm text-muted-foreground mb-4">{group.description}</p>
-                  )}
-
                   {/* Databases List */}
-                  {databases.length > 0 && (
-                    <div className="mb-4 space-y-2">
-                      <div className="text-xs font-medium text-muted-foreground mb-2">DATABASES</div>
-                      <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {databases.length > 0 ? (
+                    <div>
+                      <div className="text-xs font-medium text-muted-foreground mb-3 flex items-center gap-1">
+                        <Database className="h-3 w-3" />
+                        DATABASES ({databases.length})
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                         {databases.map((db) => (
                           <div
                             key={db.id}
                             onClick={() => navigate(`/databases/${db.id}`)}
-                            className="flex items-center gap-2 p-2 rounded-md bg-muted/50 hover:bg-muted transition-colors cursor-pointer group"
+                            className="flex items-center gap-2 p-3 rounded-md bg-background border hover:bg-muted/50 hover:border-primary/50 transition-all cursor-pointer group"
                           >
                             <div className={`p-1.5 rounded ${
                               db.db_type === 'postgresql' ? 'bg-blue-500/10' :
@@ -201,7 +251,7 @@ function Groups() {
                               db.db_type === 'mongodb' ? 'bg-green-500/10' :
                               'bg-muted'
                             }`}>
-                              <Database className={`h-3 w-3 ${
+                              <Database className={`h-4 w-4 ${
                                 db.db_type === 'postgresql' ? 'text-blue-500' :
                                 db.db_type === 'mysql' ? 'text-orange-500' :
                                 db.db_type === 'mongodb' ? 'text-green-500' :
@@ -214,33 +264,17 @@ function Groups() {
                                 {db.host}:{db.port}
                               </div>
                             </div>
-                            <ArrowRight className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                            <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                           </div>
                         ))}
                       </div>
                     </div>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Database className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No databases in this group</p>
+                    </div>
                   )}
-
-                  <div className="flex gap-2 pt-4 border-t">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => handleEdit(group)}
-                    >
-                      <Edit className="w-4 h-4 mr-2" />
-                      Edit
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => handleDeleteClick(group)}
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Delete
-                    </Button>
-                  </div>
                 </CardContent>
               </Card>
             )
@@ -303,6 +337,18 @@ function Groups() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Add Database Dialog */}
+      <DatabaseModal
+        open={showDatabaseModal}
+        onClose={() => {
+          setShowDatabaseModal(false)
+          setSelectedGroupForDb(null)
+        }}
+        onSubmit={handleDatabaseSubmit}
+        preSelectedGroupId={selectedGroupForDb?.id}
+        error={error}
+      />
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
