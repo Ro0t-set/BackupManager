@@ -4,10 +4,13 @@ Custom implementation using threading and croniter.
 """
 import threading
 import time
+import os
+import json
 from datetime import datetime, timedelta
 from croniter import croniter
 import logging
 from sqlalchemy.orm import Session
+from sqlalchemy import and_
 
 from app.core.database import SessionLocal
 from app.models.schedule import Schedule
@@ -64,12 +67,112 @@ def execute_scheduled_backup(schedule_id: int):
         # Execute backup (this will run in the background)
         execute_backup_task(new_backup.id, schedule.database_id)
 
+        # Cleanup old backups based on retention policy
+        cleanup_old_backups(db, schedule)
+
         logger.info(f"Scheduled backup created successfully: {backup_name}")
 
     except Exception as e:
         logger.error(f"Error executing scheduled backup for schedule {schedule_id}: {str(e)}")
     finally:
         db.close()
+
+
+def cleanup_old_backups(db: Session, schedule: Schedule):
+    """
+    Cleanup old backups based on retention_days and max_backups settings.
+    
+    IMPORTANT: This function only deletes backups created by THIS specific schedule.
+    It filters by schedule_id to ensure different schedules don't interfere with each other.
+    Manual backups (schedule_id = NULL) are never affected by this cleanup.
+    
+    Args:
+        db: Database session
+        schedule: The schedule whose backups should be cleaned up
+    """
+    try:
+        logger.info(f"Starting cleanup for schedule {schedule.id} (retention_days={schedule.retention_days}, max_backups={schedule.max_backups})")
+        
+        # Get all completed backups for THIS SPECIFIC schedule only
+        # This ensures each schedule manages only its own backups
+        all_backups = db.query(Backup).filter(
+            and_(
+                Backup.schedule_id == schedule.id,  # ← CRITICAL: Only backups from THIS schedule
+                Backup.status == BackupStatus.COMPLETED
+            )
+        ).order_by(Backup.created_at.desc()).all()
+        
+        logger.info(f"Found {len(all_backups)} completed backups for schedule {schedule.id}")
+
+        backups_to_delete = []
+
+        # Apply retention_days policy
+        if schedule.retention_days and schedule.retention_days > 0:
+            cutoff_date = datetime.utcnow() - timedelta(days=schedule.retention_days)
+            for backup in all_backups:
+                if backup.created_at and backup.created_at < cutoff_date:
+                    backups_to_delete.append(backup)
+                    logger.info(f"Backup {backup.id} ({backup.name}) marked for deletion (older than {schedule.retention_days} days)")
+
+        # Apply max_backups policy (keep only the N most recent)
+        if schedule.max_backups and schedule.max_backups > 0:
+            if len(all_backups) > schedule.max_backups:
+                # Skip the first max_backups (most recent), delete the rest
+                excess_backups = all_backups[schedule.max_backups:]
+                for backup in excess_backups:
+                    if backup not in backups_to_delete:
+                        backups_to_delete.append(backup)
+                        logger.info(f"Backup {backup.id} ({backup.name}) marked for deletion (exceeds max_backups limit of {schedule.max_backups})")
+
+        # Delete marked backups
+        for backup in backups_to_delete:
+            try:
+                deleted_files = 0
+                
+                # Delete files from multi-destination results (NEW SYSTEM)
+                if backup.destination_results:
+                    try:
+                        results = json.loads(backup.destination_results)
+                        for dest_name, dest_data in results.items():
+                            if dest_data.get('success') and dest_data.get('file_path'):
+                                file_path = dest_data['file_path']
+                                if os.path.exists(file_path):
+                                    try:
+                                        os.remove(file_path)
+                                        deleted_files += 1
+                                        logger.info(f"Deleted backup file: {file_path} (destination: {dest_name})")
+                                    except Exception as e:
+                                        logger.error(f"Error deleting file {file_path}: {str(e)}")
+                                else:
+                                    logger.warning(f"Backup file not found: {file_path}")
+                    except json.JSONDecodeError as e:
+                        logger.error(f"Error parsing destination_results for backup {backup.id}: {str(e)}")
+                
+                # Delete legacy single file path (OLD SYSTEM - for backward compatibility)
+                if backup.file_path and os.path.exists(backup.file_path):
+                    try:
+                        os.remove(backup.file_path)
+                        deleted_files += 1
+                        logger.info(f"Deleted legacy backup file: {backup.file_path}")
+                    except Exception as e:
+                        logger.error(f"Error deleting legacy file {backup.file_path}: {str(e)}")
+                
+                # Delete backup record from database
+                db.delete(backup)
+                logger.info(f"Deleted backup record: {backup.id} (removed {deleted_files} file(s))")
+                
+            except Exception as e:
+                logger.error(f"Error deleting backup {backup.id}: {str(e)}")
+
+        if backups_to_delete:
+            db.commit()
+            logger.info(f"Cleanup completed: {len(backups_to_delete)} backups removed for schedule {schedule.id}")
+        else:
+            logger.info(f"No backups to cleanup for schedule {schedule.id}")
+
+    except Exception as e:
+        logger.error(f"Error during backup cleanup for schedule {schedule.id}: {str(e)}")
+        db.rollback()
 
 
 def scheduler_loop():

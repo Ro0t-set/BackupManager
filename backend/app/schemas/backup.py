@@ -24,6 +24,7 @@ class BackupResponse(BackupBase):
     id: int
     database_id: int
     schedule_id: Optional[int] = None
+    schedule_name: Optional[str] = None  # Nome dello scheduler (None se manuale)
     file_path: Optional[str] = None
     file_size: Optional[int] = None
     checksum: Optional[str] = None

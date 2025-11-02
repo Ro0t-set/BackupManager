@@ -10,6 +10,7 @@ from app.models.database import Database
 from app.models.group import Group
 from app.models.backup import Backup, BackupStatus
 from app.models.schedule import Schedule
+from app.models.schedule import Schedule
 # from app.models.backup_destination import BackupDestination, DestinationStatus  # OLD - removed
 from app.schemas.database import (
     DatabaseCreate, 
@@ -166,21 +167,29 @@ def get_database_details(
         )
         schedules_list.append(schedule_item)
 
-    # Get last 10 backups with file verification for all destinations
+    # Get ALL backups with file verification for all destinations
     recent_backups_query = db.query(Backup).filter(
         Backup.database_id == database_id
-    ).order_by(desc(Backup.created_at)).limit(10).all()
+    ).order_by(desc(Backup.created_at)).all()
     
     recent_backups_list = []
     for backup in recent_backups_query:
         # Get all destinations for this backup (legacy, kept for backward compatibility)
         destinations_list = []
 
+        # Get schedule name if backup was created by a scheduler
+        schedule_name = None
+        if backup.schedule_id:
+            schedule = db.query(Schedule).filter(Schedule.id == backup.schedule_id).first()
+            if schedule:
+                schedule_name = schedule.name
+
         backup_item = BackupDetailItem(
             id=backup.id,
             name=backup.name,
             database_id=backup.database_id,
             schedule_id=backup.schedule_id,
+            schedule_name=schedule_name,
             status=backup.status.value,
             error_message=backup.error_message,
             started_at=backup.started_at,

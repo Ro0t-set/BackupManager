@@ -136,7 +136,10 @@ def create_database_dump(db_type: str, host: str, port: int, username: str,
     # Decrypt password
     password = decrypt_password(password_encrypted) if password_encrypted else ""
 
-    output_file = os.path.join(temp_dir, f"{backup_name}.dump")
+    # Add unique identifier to avoid conflicts between concurrent backups
+    import uuid
+    unique_id = str(uuid.uuid4())[:8]
+    output_file = os.path.join(temp_dir, f"{backup_name}_{unique_id}.dump")
 
     try:
         if db_type.lower() == 'postgresql':

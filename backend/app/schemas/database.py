@@ -92,6 +92,7 @@ class BackupDetailItem(BaseModel):
     name: str
     database_id: int
     schedule_id: Optional[int] = None
+    schedule_name: Optional[str] = None  # Nome dello scheduler (None se manuale)
     status: str
     error_message: Optional[str] = None
     started_at: Optional[datetime] = None

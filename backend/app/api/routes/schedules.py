@@ -3,6 +3,9 @@ from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime
 from croniter import croniter
+import json
+import os
+import logging
 
 from app.core.database import get_db
 from app.core.deps import get_current_user
@@ -10,8 +13,12 @@ from app.core.scheduler import add_schedule_job, remove_schedule_job
 from app.models.user import User
 from app.models.schedule import Schedule
 from app.models.database import Database
+from app.models.backup import Backup, BackupStatus
 from app.schemas.schedule import ScheduleCreate, ScheduleUpdate, ScheduleResponse
+from sqlalchemy import and_
+from datetime import timedelta
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -178,3 +185,94 @@ def delete_schedule(
     db.commit()
 
     return None
+
+
+@router.post("/{schedule_id}/cleanup")
+def cleanup_schedule_backups(
+    schedule_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Manually trigger cleanup of old backups for a schedule based on its retention policy.
+    This is useful for testing or forcing a cleanup outside of the automatic scheduler.
+    """
+    schedule = db.query(Schedule).filter(Schedule.id == schedule_id).first()
+    if not schedule:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Schedule not found"
+        )
+
+    # Get all completed backups for this schedule
+    all_backups = db.query(Backup).filter(
+        and_(
+            Backup.schedule_id == schedule.id,
+            Backup.status == BackupStatus.COMPLETED
+        )
+    ).order_by(Backup.created_at.desc()).all()
+
+    backups_to_delete = []
+    deleted_files = []
+    errors = []
+
+    # Apply retention_days policy
+    if schedule.retention_days and schedule.retention_days > 0:
+        cutoff_date = datetime.utcnow() - timedelta(days=schedule.retention_days)
+        for backup in all_backups:
+            if backup.created_at and backup.created_at < cutoff_date:
+                backups_to_delete.append(backup)
+
+    # Apply max_backups policy
+    if schedule.max_backups and schedule.max_backups > 0:
+        if len(all_backups) > schedule.max_backups:
+            excess_backups = all_backups[schedule.max_backups:]
+            for backup in excess_backups:
+                if backup not in backups_to_delete:
+                    backups_to_delete.append(backup)
+
+    # Delete marked backups
+    for backup in backups_to_delete:
+        try:
+            # Delete files from multi-destination results
+            if backup.destination_results:
+                try:
+                    results = json.loads(backup.destination_results)
+                    for dest_name, dest_data in results.items():
+                        if dest_data.get('success') and dest_data.get('file_path'):
+                            file_path = dest_data['file_path']
+                            if os.path.exists(file_path):
+                                try:
+                                    os.remove(file_path)
+                                    deleted_files.append(file_path)
+                                    logger.info(f"Deleted backup file: {file_path}")
+                                except Exception as e:
+                                    errors.append(f"Error deleting {file_path}: {str(e)}")
+                except json.JSONDecodeError as e:
+                    errors.append(f"Error parsing destination_results for backup {backup.id}: {str(e)}")
+            
+            # Delete legacy file path
+            if backup.file_path and os.path.exists(backup.file_path):
+                try:
+                    os.remove(backup.file_path)
+                    deleted_files.append(backup.file_path)
+                except Exception as e:
+                    errors.append(f"Error deleting {backup.file_path}: {str(e)}")
+            
+            # Delete backup record
+            db.delete(backup)
+        except Exception as e:
+            errors.append(f"Error processing backup {backup.id}: {str(e)}")
+
+    db.commit()
+
+    return {
+        "message": f"Cleanup completed for schedule {schedule.name}",
+        "schedule_id": schedule_id,
+        "retention_days": schedule.retention_days,
+        "max_backups": schedule.max_backups,
+        "total_backups_before": len(all_backups),
+        "backups_deleted": len(backups_to_delete),
+        "files_deleted": deleted_files,
+        "errors": errors if errors else None
+    }
