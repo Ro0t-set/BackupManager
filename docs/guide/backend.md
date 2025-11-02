@@ -2,38 +2,38 @@
 title: Backend
 ---
 
-The backend is written in FastAPI and organizes API, scheduler, and backup management.
+Il backend è scritto in FastAPI e organizza API, scheduler e gestione backup.
 
-## Main Structure
+## Struttura principale
 
-- `backend/app/main.py` — FastAPI entry point
-- `backend/app/core/` — Core configurations (database, security, scheduler, encryption)
-- `backend/app/api/routes/` — Resource routers (auth, backups, databases, destinations, groups, etc.)
-- `backend/app/models/` — SQLAlchemy models
-- `backend/app/schemas/` — Pydantic schemas
-- `backend/app/utils/` — Utilities (backup execution, DB connection, file verification)
-- `backend/alembic/` — Database migrations
+- `backend/app/main.py` — entrypoint FastAPI
+- `backend/app/core/` — configurazioni core (database, sicurezza, scheduler, cifratura)
+- `backend/app/api/routes/` — router per risorse (auth, backups, databases, destinations, groups, ...)
+- `backend/app/models/` — modelli SQLAlchemy
+- `backend/app/schemas/` — schemi Pydantic
+- `backend/app/utils/` — utilità (esecuzione backup, connessione DB, verifica file)
+- `backend/alembic/` — migrazioni DB
 
-## Local Execution
+## Esecuzione locale
 
 ```bash
 pip install -r backend/requirements.txt
 uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-## Migrations (Alembic)
+## Migrazioni (Alembic)
 
-Useful scripts:
+Script utili:
 
 ```bash
-# generate a new migration
-./scripts/generate-migration.sh "description"
+# genera una nuova migrazione
+./scripts/generate-migration.sh "descrizione"
 
-# apply migrations
+# applica le migrazioni
 alembic -c backend/alembic.ini upgrade head
 ```
 
-## Scheduler and Backup
+## Scheduler e Backup
 
-The scheduling and backup execution logic resides in `backend/app/core/scheduler.py` and related utilities in `backend/app/utils/`.
-See also `backend/MULTI_DESTINATION_BACKUPS.md` for the multi-destination design.
+La logica di pianificazione/avvio backup risiede in `backend/app/core/scheduler.py` e utility correlate in `backend/app/utils/`.
+Consulta anche `backend/MULTI_DESTINATION_BACKUPS.md` per il design multi-destinazione.

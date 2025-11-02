@@ -2,27 +2,33 @@
 title: Getting Started
 ---
 
-This guide takes you from local installation to the first run.
+This guide covers installation and first run of the application.
 
 ## Prerequisites
 
 - macOS, Linux, or Windows
-- Docker (recommended) or Python 3.11+
-- Node.js 18+
+- Docker (recommended for rapid development) or Python 3.11+
+- Node.js 18+ (for frontend and documentation)
 
-## Quick start with Docker
+## Quick Start with Docker
+
+1. Run the setup script and create admin user:
+2. Start Backend and Frontend stacks:
 
 ```bash
-# from the project root
+# from project root
 ./scripts/dev-setup.sh
 docker compose -f docker-compose.dev.yml up --build
 ```
 
-## Without Docker (dev)
+The app will be available on the frontend portal (see nginx.conf) and the FastAPI backend on the configured port.
+
+## Running Without Docker (Development)
 
 Backend (FastAPI):
 
 ```bash
+# from project root
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r backend/requirements.txt
 uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
@@ -36,10 +42,10 @@ npm install
 npm run dev
 ```
 
-## Project structure
+## Project Structure
 
 - `backend/` — FastAPI API, scheduler, models and migrations (alembic)
 - `frontend/` — React interface (Vite + Tailwind)
-- `scripts/` — utility scripts (setup, migrations, build)
+- `scripts/` — Utility scripts (setup, migrations, build)
 
-Continue with [Backend](/en/guide/backend) and [Frontend](/en/guide/frontend).
+Continue with details on [Backend](/en/guide/backend) and [Frontend](/en/guide/frontend).

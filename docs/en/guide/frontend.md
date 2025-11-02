@@ -2,9 +2,9 @@
 title: Frontend
 ---
 
-The frontend is a React app powered by Vite and Tailwind.
+The frontend is a React app with Vite and Tailwind.
 
-## Main commands
+## Main Commands
 
 ```bash
 cd frontend
@@ -16,12 +16,12 @@ npm run dev
 # production build
 npm run build
 
-# local preview
+# local build preview
 npm run preview
 ```
 
 ## Structure
 
-- `frontend/src/` — app, pages, components and API services
-- `frontend/tailwind.config.js` — Tailwind config
-- `frontend/vite.config.js` — Vite config
+- `frontend/src/` — App, pages, components and API services
+- `frontend/tailwind.config.js` — Tailwind configuration
+- `frontend/vite.config.js` — Vite configuration

@@ -2,33 +2,33 @@
 title: Getting Started
 ---
 
-This guide covers installation and first run of the application.
+Questa guida ti porta dall'installazione locale al primo avvio dell'applicazione.
 
-## Prerequisites
+## Prerequisiti
 
-- macOS, Linux, or Windows
-- Docker (recommended for rapid development) or Python 3.11+
-- Node.js 18+ (for frontend and documentation)
+- macOS, Linux o Windows
+- Docker (consigliato per sviluppo rapido) oppure Python 3.11+
+- Node.js 18+ (per il frontend e la documentazione)
 
-## Quick Start with Docker
+## Avvio rapido con Docker
 
-1. Run the setup script and create admin user:
-2. Start Backend and Frontend stacks:
+1. Esegui lo script di setup e crea l'utente admin:
+2. Avvia gli stack di Backend e Frontend:
 
 ```bash
-# from project root
+# dalla root del progetto
 ./scripts/dev-setup.sh
 docker compose -f docker-compose.dev.yml up --build
 ```
 
-The app will be available on the frontend portal (see nginx.conf) and the FastAPI backend on the configured port.
+L'app sarà disponibile sul portale frontend (vedi nginx.conf) e il backend FastAPI sulla porta configurata.
 
-## Running Without Docker (Development)
+## Avvio senza Docker (sviluppo)
 
 Backend (FastAPI):
 
 ```bash
-# from project root
+# dalla root del progetto
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r backend/requirements.txt
 uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
@@ -42,10 +42,10 @@ npm install
 npm run dev
 ```
 
-## Project Structure
+## Struttura del progetto
 
-- `backend/` — FastAPI API, scheduler, models and migrations (alembic)
-- `frontend/` — React interface (Vite + Tailwind)
-- `scripts/` — Utility scripts (setup, migrations, build)
+- `backend/` — API in FastAPI, scheduler, modelli e migrazioni (alembic)
+- `frontend/` — interfaccia React (Vite + Tailwind)
+- `scripts/` — script di utilità (setup, migrazioni, build)
 
-Continue with details on [Backend](/guide/backend) and [Frontend](/guide/frontend).
+Prosegui con i dettagli su [Backend](/guide/backend) e [Frontend](/guide/frontend).

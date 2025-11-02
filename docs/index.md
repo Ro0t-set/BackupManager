@@ -2,32 +2,32 @@
 layout: home
 hero:
   name: BackupManager
-  text: Automated Backup Management
-  tagline: FastAPI + React • Multi-destination • Scheduling • Integrity Verification
+  text: Gestione automatizzata dei backup
+  tagline: FastAPI + React • multi-destinazione • pianificazione • verifica integrità
   actions:
     - theme: brand
-      text: Get Started
+      text: Inizia ora
       link: /guide/getting-started
     - theme: alt
       text: Repository
       link: https://github.com/Ro0t-set/BackupManager
 features:
-  - title: Scheduling
-    details: Integrated scheduler for regular backups with time window management.
-  - title: Multi-destination
-    details: Send backups to multiple storage locations (local/S3/etc.); extensible adapter design.
-  - title: Security
-    details: Encryption and file verification to ensure integrity and confidentiality.
+  - title: Pianificazione
+    details: Scheduler integrato per backup regolari con gestione delle finestre temporali.
+  - title: Multi-destinazione
+    details: Invia i backup verso storage multipli (locale/S3/etc.); design estendibile via adapter.
+  - title: Sicurezza
+    details: Cifratura e verifica file per assicurare integrità e confidenzialità.
 ---
 
-## What is BackupManager?
+## Cos'è BackupManager?
 
-BackupManager is a platform for orchestrating database and file backups, with a FastAPI backend and React (Vite) frontend, designed for multi-destination environments with integrated scheduling.
+BackupManager è una piattaforma per orchestrare backup di database e file, con un backend in FastAPI e un frontend in React (Vite), pensata per ambienti multi-destinazione e con scheduler integrato.
 
-To get started, visit the quick start guide: [Getting Started](/guide/getting-started).
+Per iniziare vai alla guida rapida: [Inizia ora](/guide/getting-started).
 
-### Preview
+### Anteprima
 
 ![Dashboard](./img/dashboard.png)
 
-![Database Connections](./img/db.png)
+![Connessioni DB](./img/db.png)
