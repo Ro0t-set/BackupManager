@@ -5,7 +5,7 @@ import os
 
 from app.core.database import init_db, SessionLocal
 from app.core.init_admin import create_default_admin
-from app.api.routes import auth, groups, databases, schedules
+from app.api.routes import auth, groups, databases, schedules, destinations
 
 
 @asynccontextmanager
@@ -69,6 +69,7 @@ async def health_check():
 app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
 app.include_router(groups.router, prefix="/api/groups", tags=["groups"])
 app.include_router(databases.router, prefix="/api/databases", tags=["databases"])
+app.include_router(destinations.router, prefix="/api/databases", tags=["destinations"])
 app.include_router(schedules.router, prefix="/api/schedules", tags=["schedules"])
 
 # Future routers

@@ -1,3 +1,3 @@
-from . import auth, groups, databases, schedules
+from . import auth, groups, databases, schedules, destinations
 
-__all__ = ["auth", "groups", "databases", "schedules"]
+__all__ = ["auth", "groups", "databases", "schedules", "destinations"]

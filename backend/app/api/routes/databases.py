@@ -10,7 +10,7 @@ from app.models.database import Database
 from app.models.group import Group
 from app.models.backup import Backup, BackupStatus
 from app.models.schedule import Schedule
-from app.models.backup_destination import BackupDestination, DestinationStatus
+# from app.models.backup_destination import BackupDestination, DestinationStatus  # OLD - removed
 from app.schemas.database import (
     DatabaseCreate, 
     DatabaseUpdate, 
@@ -176,39 +176,9 @@ def get_database_details(
         # Get all destinations for this backup
         destinations_list = []
         
-        if backup.destinations and len(backup.destinations) > 0:
-            # New multi-destination backups
-            for destination in backup.destinations:
-                # Verify file for completed destinations
-                file_info = None
-                if destination.status == DestinationStatus.COMPLETED:
-                    # Use base_path if provided, otherwise use default
-                    file_verification = verify_backup_file(
-                        destination.file_path, 
-                        base_path=destination.base_path
-                    )
-                    file_info = DestinationFileInfo(**file_verification)
-                
-                destination_detail = BackupDestinationDetail(
-                    id=destination.id,
-                    storage_type=destination.storage_type.value,
-                    storage_name=destination.storage_name,
-                    file_path=destination.file_path,
-                    base_path=destination.base_path,
-                    file_size=destination.file_size,
-                    checksum=destination.checksum,
-                    status=destination.status.value,
-                    error_message=destination.error_message,
-                    upload_started_at=destination.upload_started_at,
-                    upload_completed_at=destination.upload_completed_at,
-                    upload_duration_seconds=destination.upload_duration_seconds,
-                    priority=destination.priority,
-                    file_info=file_info
-                )
-                destinations_list.append(destination_detail)
-        
-        # Sort destinations by priority
-        destinations_list.sort(key=lambda d: d.priority)
+        # TODO: Implement new multi-destination logic with destination_results JSON field
+        # For now, leaving destinations_list empty until we implement the new system
+        pass
         
         backup_item = BackupDetailItem(
             id=backup.id,

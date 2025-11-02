@@ -45,6 +45,7 @@ class Database(Base):
     creator = relationship("User", back_populates="databases", foreign_keys=[created_by])
     schedules = relationship("Schedule", back_populates="database", cascade="all, delete-orphan")
     backups = relationship("Backup", back_populates="database", cascade="all, delete-orphan")
+    destinations = relationship("DatabaseDestination", back_populates="database", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Database {self.name} ({self.db_type})>"

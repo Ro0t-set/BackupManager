@@ -10,6 +10,7 @@ class BackupStatus(str, enum.Enum):
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
     FAILED = "failed"
+    PARTIAL = "partial"  # Saved to some destinations but not all
 
 
 class StorageType(str, enum.Enum):
@@ -30,12 +31,15 @@ class Backup(Base):
     database_id = Column(Integer, ForeignKey("databases.id"), nullable=False)
     schedule_id = Column(Integer, ForeignKey("schedules.id"), nullable=True)  # NULL if manual
 
-    # Storage information (DEPRECATED - use destinations relationship instead)
-    # These fields are kept for backward compatibility with existing backups
+    # Storage information (DEPRECATED - kept for backward compatibility)
     storage_type = Column(SQLEnum(StorageType), nullable=True, default=StorageType.LOCAL)
     file_path = Column(Text, nullable=True)  # Local path or S3 key
     file_size = Column(BigInteger, nullable=True)  # Size in bytes
     checksum = Column(String, nullable=True)  # MD5 or SHA256
+
+    # Multi-destination results (JSON string)
+    # Format: {"path": {"success": true, "file_path": "...", "size_mb": 150, "error": null}}
+    destination_results = Column(Text, nullable=True)
 
     # Backup status
     status = Column(SQLEnum(BackupStatus), nullable=False, default=BackupStatus.PENDING)
@@ -59,7 +63,6 @@ class Backup(Base):
     database = relationship("Database", back_populates="backups")
     schedule = relationship("Schedule")
     creator = relationship("User", foreign_keys=[created_by])
-    destinations = relationship("BackupDestination", back_populates="backup", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Backup {self.name} ({self.status})>"

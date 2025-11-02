@@ -3,9 +3,9 @@ from .group import Group
 from .database import Database, DatabaseType
 from .schedule import Schedule, ScheduleType
 from .backup import Backup, BackupStatus, StorageType
-from .backup_destination import BackupDestination, DestinationStatus
+from .database_destination import DatabaseDestination
 
 __all__ = [
-    "User", "Group", "Database", "Schedule", "Backup", "BackupDestination", "Base",
-    "DatabaseType", "ScheduleType", "BackupStatus", "StorageType", "DestinationStatus"
+    "User", "Group", "Database", "Schedule", "Backup", "DatabaseDestination", "Base",
+    "DatabaseType", "ScheduleType", "BackupStatus", "StorageType"
 ]
