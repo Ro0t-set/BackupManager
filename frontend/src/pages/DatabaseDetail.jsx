@@ -5,6 +5,7 @@ import {
   CheckCircle, XCircle, AlertTriangle, Plus, RefreshCw, Calendar,
   Activity, TrendingUp, Play
 } from 'lucide-react'
+import { toast } from 'sonner'
 import api from '@/services/api'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -64,6 +65,28 @@ function DatabaseDetail() {
     await loadDatabaseDetails()
     await loadDestinations()
     setRefreshing(false)
+  }
+
+  const handleTriggerBackup = async () => {
+    try {
+      const result = await api.triggerManualBackup(database.id)
+
+      toast.success('Backup Started', {
+        description: `Backup "${result.backup_name}" is now running in the background. It will be saved to ${result.destinations.length} destination(s).`,
+        duration: 5000,
+      })
+
+      // Auto-refresh after 2 seconds to show the new backup
+      setTimeout(() => {
+        handleRefresh()
+      }, 2000)
+
+    } catch (err) {
+      toast.error('Backup Failed', {
+        description: err.message || 'Failed to start backup. Please check your destinations configuration.',
+        duration: 5000,
+      })
+    }
   }
 
   const formatFileSize = (bytes) => {
@@ -130,7 +153,7 @@ function DatabaseDetail() {
             <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-          <Button onClick={() => api.triggerManualBackup(database.id)}>
+          <Button onClick={handleTriggerBackup}>
             <Play className="w-4 h-4 mr-2" />
             Trigger Backup
           </Button>

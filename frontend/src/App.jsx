@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { Toaster } from '@/components/ui/sonner'
 import Login from '@/pages/Login'
 import Dashboard from '@/pages/Dashboard'
 import Groups from '@/pages/Groups'
@@ -117,6 +118,7 @@ function App() {
         <Routes>
           <Route path="/*" element={<AppLayout />} />
         </Routes>
+        <Toaster />
       </BrowserRouter>
     </AuthProvider>
   )
