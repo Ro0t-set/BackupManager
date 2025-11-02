@@ -31,3 +31,5 @@ Per iniziare vai alla guida rapida: [/guide/getting-started](/guide/getting-star
 ![Dashboard](./img/dashboard.png)
 
 ![Connessioni DB](./img/db.png)
+
+<!-- trigger deploy: update docs -->
