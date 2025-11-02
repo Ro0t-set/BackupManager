@@ -80,8 +80,8 @@ function Dashboard() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Caricamento statistiche...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Caricamento statistiche...</p>
         </div>
       </div>
     )
@@ -154,14 +154,14 @@ function Dashboard() {
           <div className="space-y-2">
             {stats.trends.map((day) => (
               <div key={day.date} className="flex items-center gap-4">
-                <div className="w-24 text-sm text-gray-600">
+                <div className="w-24 text-sm text-muted-foreground">
                   {new Date(day.date).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })}
                 </div>
                 <div className="flex-1 flex items-center gap-2">
-                  <div className="flex-1 h-8 bg-gray-100 rounded-md overflow-hidden flex">
+                  <div className="flex-1 h-8 bg-muted rounded-md overflow-hidden flex">
                     {day.successful > 0 && (
                       <div
-                        className="bg-green-500 flex items-center justify-center text-xs text-white"
+                        className="bg-green-500 dark:bg-green-600 flex items-center justify-center text-xs text-white font-medium"
                         style={{ width: `${(day.successful / day.total) * 100}%` }}
                         title={`${day.successful} completati`}
                       >
@@ -170,7 +170,7 @@ function Dashboard() {
                     )}
                     {day.failed > 0 && (
                       <div
-                        className="bg-red-500 flex items-center justify-center text-xs text-white"
+                        className="bg-red-500 dark:bg-red-600 flex items-center justify-center text-xs text-white font-medium"
                         style={{ width: `${(day.failed / day.total) * 100}%` }}
                         title={`${day.failed} falliti`}
                       >
@@ -178,7 +178,7 @@ function Dashboard() {
                       </div>
                     )}
                   </div>
-                  <div className="w-16 text-sm text-right text-gray-600">
+                  <div className="w-16 text-sm text-right text-muted-foreground">
                     {day.total} totali
                   </div>
                 </div>
@@ -196,16 +196,16 @@ function Dashboard() {
         </CardHeader>
         <CardContent>
           {stats.groups.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">Nessun gruppo disponibile</p>
+            <p className="text-center text-muted-foreground py-8">Nessun gruppo disponibile</p>
           ) : (
             <div className="space-y-4">
               {stats.groups.map((group) => (
-                <div key={group.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                <div key={group.id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <h3 className="font-semibold text-lg">{group.name}</h3>
                       {group.description && (
-                        <p className="text-sm text-gray-500">{group.description}</p>
+                        <p className="text-sm text-muted-foreground">{group.description}</p>
                       )}
                     </div>
                     <Badge variant={group.success_rate >= 80 ? 'success' : group.success_rate >= 50 ? 'warning' : 'destructive'}>
@@ -215,19 +215,19 @@ function Dashboard() {
                   
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                     <div>
-                      <div className="text-xs text-gray-500 mb-1">Database</div>
+                      <div className="text-xs text-muted-foreground mb-1">Database</div>
                       <div className="text-xl font-semibold">{group.database_count}</div>
                     </div>
                     <div>
-                      <div className="text-xs text-gray-500 mb-1">Backup (30gg)</div>
+                      <div className="text-xs text-muted-foreground mb-1">Backup (30gg)</div>
                       <div className="text-xl font-semibold">{group.backup_count}</div>
                     </div>
                     <div>
-                      <div className="text-xs text-gray-500 mb-1">Storage</div>
+                      <div className="text-xs text-muted-foreground mb-1">Storage</div>
                       <div className="text-xl font-semibold">{formatBytes(group.storage_used)}</div>
                     </div>
                     <div>
-                      <div className="text-xs text-gray-500 mb-1">Ultimo Backup</div>
+                      <div className="text-xs text-muted-foreground mb-1">Ultimo Backup</div>
                       <div className="text-sm font-semibold">
                         {group.last_backup_at ? formatDate(group.last_backup_at) : 'Mai'}
                       </div>
@@ -248,32 +248,32 @@ function Dashboard() {
         </CardHeader>
         <CardContent>
           {stats.recent_backups.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">Nessun backup disponibile</p>
+            <p className="text-center text-muted-foreground py-8">Nessun backup disponibile</p>
           ) : (
             <div className="space-y-2">
               {stats.recent_backups.map((backup) => (
                 <div
                   key={backup.id}
-                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-2 h-2 rounded-full ${getStatusColor(backup.status)}`}></div>
                     <div>
                       <div className="font-medium">{backup.name}</div>
-                      <div className="text-sm text-gray-500">{backup.database_name}</div>
+                      <div className="text-sm text-muted-foreground">{backup.database_name}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
                       <div className="text-sm font-medium">{formatBytes(backup.file_size)}</div>
                       {backup.duration_seconds && (
-                        <div className="text-xs text-gray-500">{backup.duration_seconds}s</div>
+                        <div className="text-xs text-muted-foreground">{backup.duration_seconds}s</div>
                       )}
                     </div>
                     <Badge variant={backup.status === 'completed' ? 'success' : backup.status === 'failed' ? 'destructive' : 'default'}>
                       {getStatusLabel(backup.status)}
                     </Badge>
-                    <div className="text-sm text-gray-500 w-32 text-right">
+                    <div className="text-sm text-muted-foreground w-32 text-right">
                       {formatDate(backup.created_at)}
                     </div>
                   </div>
@@ -294,7 +294,7 @@ function Dashboard() {
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold">{stats.overview.total_schedules}</div>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Backup automatici programmati
           </p>
         </CardContent>

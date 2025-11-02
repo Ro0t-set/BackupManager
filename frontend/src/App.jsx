@@ -1,12 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation, NavLink } from 'react-router-dom'
 import { Database, LayoutDashboard, FolderOpen, LogOut, Loader2 } from 'lucide-react'
 import { AuthProvider } from '@/context/AuthContext'
+import { ThemeProvider } from '@/context/ThemeContext'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Toaster } from '@/components/ui/sonner'
+import ThemeToggle from '@/components/Common/ThemeToggle'
 import Login from '@/pages/Login'
 import Dashboard from '@/pages/Dashboard'
 import Groups from '@/pages/Groups'
@@ -52,6 +54,7 @@ function AppLayout() {
             </div>
 
             <div className="flex items-center gap-4">
+              <ThemeToggle />
               <div className="text-right">
                 <p className="text-sm font-medium">{user?.full_name || user?.username}</p>
                 <p className="text-xs text-muted-foreground">{user?.email}</p>
@@ -113,14 +116,16 @@ function AppLayout() {
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/*" element={<AppLayout />} />
-        </Routes>
-        <Toaster />
-      </BrowserRouter>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/*" element={<AppLayout />} />
+          </Routes>
+          <Toaster />
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 
