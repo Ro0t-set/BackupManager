@@ -16,8 +16,7 @@ export default defineConfig({
           { text: 'Guida', link: '/guide/getting-started' },
           { text: 'Backend', link: '/guide/backend' },
           { text: 'Frontend', link: '/guide/frontend' },
-          { text: 'API', link: '/guide/api' },
-          { text: 'Swagger', link: 'api/docs' }
+          { text: 'API', link: '/guide/api' }
         ],
         sidebar: {
           '/guide/': [
@@ -57,8 +56,7 @@ export default defineConfig({
           { text: 'Guide', link: '/en/guide/getting-started' },
           { text: 'Backend', link: '/en/guide/backend' },
           { text: 'Frontend', link: '/en/guide/frontend' },
-          { text: 'API', link: '/en/guide/api' },
-          { text: 'Swagger', link: 'api/docs' }
+          { text: 'API', link: '/en/guide/api' }
         ],
         sidebar: {
           '/en/guide/': [
