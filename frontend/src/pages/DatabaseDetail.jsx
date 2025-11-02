@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import BackupDestinations from '@/components/Databases/BackupDestinations'
+import BackupListCompact from '@/components/Databases/BackupListCompact'
 import SchedulesList from '@/components/Schedules/SchedulesList'
 import DestinationList from '@/components/Databases/DestinationList'
 
@@ -284,7 +284,7 @@ function DatabaseDetail() {
       <Tabs defaultValue="backups" className="w-full">
         <TabsList>
           <TabsTrigger value="backups">
-            Recent Backups ({database.recent_backups.length})
+            All Backups ({database.recent_backups.length})
           </TabsTrigger>
           <TabsTrigger value="schedules">
             Schedules ({database.schedules.length})
@@ -306,54 +306,10 @@ function DatabaseDetail() {
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-4">
-              {database.recent_backups.map((backup) => (
-                <Card key={backup.id}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="text-lg">{backup.name}</CardTitle>
-                        <CardDescription>
-                          {new Date(backup.created_at).toLocaleString()}
-                        </CardDescription>
-                      </div>
-                      <Badge 
-                        variant={
-                          backup.status === 'completed' ? 'default' :
-                          backup.status === 'failed' ? 'destructive' :
-                          backup.status === 'in_progress' ? 'secondary' : 'outline'
-                        }
-                      >
-                        {backup.status}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    {backup.error_message && (
-                      <Alert variant="destructive" className="mb-4">
-                        <AlertDescription>{backup.error_message}</AlertDescription>
-                      </Alert>
-                    )}
-                    
-                    {backup.duration_seconds && (
-                      <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
-                        <Clock className="w-4 h-4" />
-                        Duration: {backup.duration_seconds}s
-                      </div>
-                    )}
-
-                    {/* Destination Results */}
-                    {backup.destination_results && (
-                      <BackupDestinations
-                        backupId={backup.id}
-                        destinationResults={backup.destination_results}
-                        onUpdate={handleRefresh}
-                      />
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <BackupListCompact
+              backups={database.recent_backups}
+              onUpdate={handleRefresh}
+            />
           )}
         </TabsContent>
 

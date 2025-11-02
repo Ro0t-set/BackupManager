@@ -186,7 +186,7 @@ function BackupDestinations({ destinations, backupId, onUpdate }) {
                     </p>
                     
                     <div className="flex items-center gap-4 mt-2">
-                      {destination.file_size && (
+                      {destination.file_size && destination.file_size > 0 && (
                         <span className="text-xs text-muted-foreground">
                           {formatFileSize(destination.file_size)}
                         </span>

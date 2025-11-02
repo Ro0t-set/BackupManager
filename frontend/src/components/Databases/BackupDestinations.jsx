@@ -229,7 +229,7 @@ export default function BackupDestinations({ backupId, destinationResults, onUpd
                   <code className="text-sm font-mono truncate block">
                     {result.file_path || path}
                   </code>
-                  {result.success && result.size_mb && (
+                  {result.success && result.size_mb && result.size_mb > 0 && (
                     <Badge variant="secondary" className="text-xs">
                       {result.size_mb.toFixed(2)} MB
                     </Badge>

@@ -29,7 +29,7 @@ function Dashboard() {
   }
 
   const formatBytes = (bytes) => {
-    if (!bytes) return '0 B'
+    if (!bytes || bytes === 0) return null
     const k = 1024
     const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
     const i = Math.floor(Math.log(bytes) / Math.log(k))
@@ -265,8 +265,10 @@ function Dashboard() {
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <div className="text-sm font-medium">{formatBytes(backup.file_size)}</div>
-                      {backup.duration_seconds && (
+                      {formatBytes(backup.file_size) && (
+                        <div className="text-sm font-medium">{formatBytes(backup.file_size)}</div>
+                      )}
+                      {backup.duration_seconds && backup.duration_seconds > 0 && (
                         <div className="text-xs text-muted-foreground">{backup.duration_seconds}s</div>
                       )}
                     </div>

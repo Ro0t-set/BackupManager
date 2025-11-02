@@ -48,16 +48,15 @@ def get_dashboard_stats(
         Backup.file_size.isnot(None)
     ).scalar() or 0
     
-    # Backup success rate (last 30 days)
-    thirty_days_ago = datetime.now() - timedelta(days=30)
-    recent_backups = db.query(Backup).join(Database).filter(
-        Database.group_id.in_(group_ids),
-        Backup.created_at >= thirty_days_ago
+    # Backup success rate - SOLO sui backup attualmente esistenti (non eliminati dalla retention)
+    # Questi sono i backup che "dovrebbero" essere presenti secondo le policy
+    current_backups = db.query(Backup).join(Database).filter(
+        Database.group_id.in_(group_ids)
     ).all()
     
-    total_recent = len(recent_backups)
-    successful_recent = sum(1 for b in recent_backups if b.status == BackupStatus.COMPLETED)
-    success_rate = (successful_recent / total_recent * 100) if total_recent > 0 else 0
+    total_current = len(current_backups)
+    successful_current = sum(1 for b in current_backups if b.status == BackupStatus.COMPLETED)
+    success_rate = (successful_current / total_current * 100) if total_current > 0 else 0
     
     # Recent backups (last 3)
     recent_backups_list = db.query(Backup).join(Database).filter(
@@ -82,8 +81,8 @@ def get_dashboard_stats(
         Schedule.is_active == True
     ).count()
     
-    # Failed backups count (last 30 days)
-    failed_backups_count = sum(1 for b in recent_backups if b.status == BackupStatus.FAILED)
+    # Failed backups count - SOLO sui backup attualmente esistenti
+    failed_backups_count = sum(1 for b in current_backups if b.status == BackupStatus.FAILED)
     
     # Group-wise statistics
     group_stats = []
@@ -100,10 +99,9 @@ def get_dashboard_stats(
         group_total_count = 0
         
         for database in group_databases:
-            # Count backups for this database
+            # Count backups for this database - SOLO backup attualmente esistenti
             db_backups = db.query(Backup).filter(
-                Backup.database_id == database.id,
-                Backup.created_at >= thirty_days_ago
+                Backup.database_id == database.id
             ).all()
             
             group_backup_count += len(db_backups)
