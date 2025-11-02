@@ -250,3 +250,28 @@ For issues and questions:
 ---
 
 **Note**: This project is in active development. Some features may not be fully implemented yet.
+
+## Documentation (VitePress + GitHub Pages)
+
+La documentazione ufficiale è in `docs/` (VitePress) ed è pubblicata automaticamente su GitHub Pages.
+
+Sviluppo locale della doc:
+
+```bash
+cd docs
+npm install
+npm run docs:dev
+```
+
+Build/preview locale:
+
+```bash
+npm run docs:build
+npm run docs:preview
+```
+
+Deploy automatico:
+
+- Un push su `main` che modifica `docs/**` attiva il workflow "Deploy Docs (VitePress)" che builda e pubblica su GitHub Pages.
+- Il dominio personalizzato è `www.tommasopatriti.me` (incluso nel build tramite `docs/public/CNAME`).
+- Assicurati di avere un record DNS CNAME: `www` → `ro0t-set.github.io` e di impostare in GitHub → Settings → Pages la sorgente "GitHub Actions" e il Custom domain `www.tommasopatriti.me` (con TLS automatico).
