@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import BackupDestinations from '@/components/Backups/BackupDestinations'
 import SchedulesList from '@/components/Schedules/SchedulesList'
+import DestinationList from '@/components/Databases/DestinationList'
 
 const DB_TYPES = {
   postgresql: { name: 'PostgreSQL', color: 'bg-blue-500' },
@@ -28,9 +29,11 @@ function DatabaseDetail() {
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState('')
   const [database, setDatabase] = useState(null)
+  const [destinations, setDestinations] = useState([])
 
   useEffect(() => {
     loadDatabaseDetails()
+    loadDestinations()
   }, [id])
 
   const loadDatabaseDetails = async () => {
@@ -47,9 +50,19 @@ function DatabaseDetail() {
     }
   }
 
+  const loadDestinations = async () => {
+    try {
+      const data = await api.getDatabaseDestinations(id)
+      setDestinations(data)
+    } catch (err) {
+      console.error('Failed to load destinations:', err)
+    }
+  }
+
   const handleRefresh = async () => {
     setRefreshing(true)
     await loadDatabaseDetails()
+    await loadDestinations()
     setRefreshing(false)
   }
 
@@ -253,6 +266,9 @@ function DatabaseDetail() {
           <TabsTrigger value="schedules">
             Schedules ({database.schedules.length})
           </TabsTrigger>
+          <TabsTrigger value="destinations">
+            Destinations ({destinations.length})
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="backups" className="space-y-4">
@@ -319,10 +335,18 @@ function DatabaseDetail() {
         </TabsContent>
 
         <TabsContent value="schedules" className="space-y-4">
-          <SchedulesList 
+          <SchedulesList
             schedules={database.schedules}
             databaseId={database.id}
             onUpdate={handleRefresh}
+          />
+        </TabsContent>
+
+        <TabsContent value="destinations" className="space-y-4">
+          <DestinationList
+            databaseId={database.id}
+            destinations={destinations}
+            onUpdate={loadDestinations}
           />
         </TabsContent>
       </Tabs>

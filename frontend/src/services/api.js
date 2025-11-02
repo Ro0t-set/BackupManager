@@ -132,29 +132,39 @@ class ApiService {
     })
   }
 
-  // Backup Destinations endpoints
-  async getBackupDestinations(backupId) {
-    return this.request(`/backups/${backupId}/destinations`)
+  // Database Destinations endpoints (NEW - destinations are per database, not per backup)
+  async getDatabaseDestinations(databaseId) {
+    return this.request(`/databases/${databaseId}/destinations`)
   }
 
-  async createBackupDestination(backupId, destinationData) {
-    return this.request(`/backups/${backupId}/destinations`, {
+  async createDatabaseDestination(databaseId, destinationData) {
+    return this.request(`/databases/${databaseId}/destinations`, {
       method: 'POST',
       body: JSON.stringify(destinationData),
     })
   }
 
-  async updateBackupDestination(backupId, destinationId, destinationData) {
-    return this.request(`/backups/${backupId}/destinations/${destinationId}`, {
+  async updateDatabaseDestination(databaseId, destinationId, destinationData) {
+    return this.request(`/databases/${databaseId}/destinations/${destinationId}`, {
       method: 'PUT',
       body: JSON.stringify(destinationData),
     })
   }
 
-  async deleteBackupDestination(backupId, destinationId) {
-    return this.request(`/backups/${backupId}/destinations/${destinationId}`, {
+  async deleteDatabaseDestination(databaseId, destinationId) {
+    return this.request(`/databases/${databaseId}/destinations/${destinationId}`, {
       method: 'DELETE',
     })
+  }
+
+  async validateDestinationPath(databaseId, path) {
+    return this.request(`/databases/${databaseId}/destinations/validate-path?path=${encodeURIComponent(path)}`, {
+      method: 'POST',
+    })
+  }
+
+  async getDestinationStats(databaseId, destinationId) {
+    return this.request(`/databases/${databaseId}/destinations/${destinationId}/stats`)
   }
 
   // Schedules endpoints
