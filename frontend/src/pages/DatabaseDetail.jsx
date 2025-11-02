@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { 
-  ArrowLeft, Database as DatabaseIcon, Server, Clock, HardDrive, 
+import {
+  ArrowLeft, Database as DatabaseIcon, Server, Clock, HardDrive,
   CheckCircle, XCircle, AlertTriangle, Plus, RefreshCw, Calendar,
-  Activity, TrendingUp
+  Activity, TrendingUp, Play
 } from 'lucide-react'
 import api from '@/services/api'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -131,7 +131,7 @@ function DatabaseDetail() {
             Refresh
           </Button>
           <Button onClick={() => api.triggerManualBackup(database.id)}>
-            <Plus className="w-4 h-4 mr-2" />
+            <Play className="w-4 h-4 mr-2" />
             Trigger Backup
           </Button>
         </div>
