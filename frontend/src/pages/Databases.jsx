@@ -301,23 +301,6 @@ function Databases() {
                       className="flex-1"
                       onClick={(e) => {
                         e.stopPropagation()
-                        handleTestConnection(database.id)
-                      }}
-                      disabled={testingConnection === database.id}
-                    >
-                      {testingConnection === database.id ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <TestTube className="w-4 h-4 mr-2" />
-                      )}
-                      Test
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1"
-                      onClick={(e) => {
-                        e.stopPropagation()
                         handleEdit(database)
                       }}
                     >

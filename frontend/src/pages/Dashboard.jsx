@@ -1,108 +1,304 @@
-import { Package, Database as DatabaseIcon, Clock, Plus, Rocket, Calendar, BarChart3, BookOpen } from 'lucide-react'
-import { useAuth } from '@/hooks/useAuth'
+import { useState, useEffect } from 'react'
+import { Database, HardDrive, CheckCircle, XCircle, Calendar, TrendingUp } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import StatCard from '@/components/Dashboard/StatCard'
+import api from '@/services/api'
 
 function Dashboard() {
-  const { user } = useAuth()
+  const [stats, setStats] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  const stats = [
-    { title: 'Total Backups', value: '0', description: 'No backups yet', icon: Package, color: 'text-blue-600' },
-    { title: 'Databases', value: '0', description: 'Add your first database', icon: DatabaseIcon, color: 'text-green-600' },
-    { title: 'Schedules', value: '0', description: 'Create backup schedules', icon: Clock, color: 'text-purple-600' },
-  ]
+  useEffect(() => {
+    loadDashboardStats()
+  }, [])
 
-  const quickActions = [
-    { title: 'Add Database', description: 'Connect a new database', icon: Plus },
-    { title: 'Create Backup', description: 'Run a manual backup now', icon: Rocket },
-    { title: 'Schedule Backup', description: 'Set up automated backups', icon: Calendar },
-    { title: 'View Reports', description: 'Check backup history', icon: BarChart3 },
-  ]
+  const loadDashboardStats = async () => {
+    try {
+      setLoading(true)
+      const data = await api.getDashboardStats()
+      setStats(data)
+      setError(null)
+    } catch (err) {
+      setError(err.message)
+      console.error('Failed to load dashboard stats:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const formatBytes = (bytes) => {
+    if (!bytes) return '0 B'
+    const k = 1024
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`
+  }
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A'
+    const date = new Date(dateString)
+    return date.toLocaleDateString('it-IT', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-500'
+      case 'failed':
+        return 'bg-red-500'
+      case 'in_progress':
+        return 'bg-blue-500'
+      default:
+        return 'bg-gray-500'
+    }
+  }
+
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 'completed':
+        return 'Completato'
+      case 'failed':
+        return 'Fallito'
+      case 'in_progress':
+        return 'In corso'
+      case 'pending':
+        return 'In attesa'
+      default:
+        return status
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Caricamento statistiche...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <XCircle className="h-12 w-12 text-red-500 mx-auto" />
+          <p className="mt-4 text-red-600">Errore: {error}</p>
+          <button
+            onClick={loadDashboardStats}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Riprova
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (!stats) return null
 
   return (
     <div className="space-y-6">
-      {/* Welcome Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Welcome back, {user?.username}!</CardTitle>
-          <CardDescription>
-            Manage your database backups, schedules, and monitoring from this dashboard.
-          </CardDescription>
-        </CardHeader>
-      </Card>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {stats.map((stat) => {
-          const Icon = stat.icon
-          return (
-            <Card key={stat.title}>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">{stat.title}</CardTitle>
-                  <Icon className={`w-8 h-8 ${stat.color}`} />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>
-                <p className="text-sm text-muted-foreground mt-2">{stat.description}</p>
-              </CardContent>
-            </Card>
-          )
-        })}
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <p className="text-gray-500 mt-1">
+          Panoramica generale del sistema di backup
+        </p>
       </div>
 
-      {/* Quick Actions */}
+      {/* Overall Statistics */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Database Totali"
+          value={stats.overview.total_databases}
+          subtitle="Database attivi monitorati"
+          icon={Database}
+        />
+        <StatCard
+          title="Backup Totali"
+          value={stats.overview.total_backups}
+          subtitle="Backup eseguiti"
+          icon={HardDrive}
+        />
+        <StatCard
+          title="Spazio Utilizzato"
+          value={formatBytes(stats.overview.total_storage)}
+          subtitle="Storage totale"
+          icon={TrendingUp}
+        />
+        <StatCard
+          title="Tasso di Successo"
+          value={`${stats.overview.success_rate}%`}
+          subtitle={`${stats.overview.failed_backups} falliti negli ultimi 30 giorni`}
+          icon={CheckCircle}
+        />
+      </div>
+
+      {/* Backup Trends Chart */}
       <Card>
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
+          <CardTitle>Trend Backup (Ultimi 7 giorni)</CardTitle>
+          <CardDescription>Andamento dei backup nell'ultima settimana</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {quickActions.map((action) => {
-              const Icon = action.icon
-              return (
-                <Button
-                  key={action.title}
-                  variant="outline"
-                  className="h-auto py-6 justify-start"
-                >
-                  <Icon className="w-10 h-10 mr-4" />
-                  <div className="text-left">
-                    <h4 className="font-semibold">{action.title}</h4>
-                    <p className="text-sm text-muted-foreground">{action.description}</p>
+          <div className="space-y-2">
+            {stats.trends.map((day) => (
+              <div key={day.date} className="flex items-center gap-4">
+                <div className="w-24 text-sm text-gray-600">
+                  {new Date(day.date).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })}
+                </div>
+                <div className="flex-1 flex items-center gap-2">
+                  <div className="flex-1 h-8 bg-gray-100 rounded-md overflow-hidden flex">
+                    {day.successful > 0 && (
+                      <div
+                        className="bg-green-500 flex items-center justify-center text-xs text-white"
+                        style={{ width: `${(day.successful / day.total) * 100}%` }}
+                        title={`${day.successful} completati`}
+                      >
+                        {day.successful > 0 && day.successful}
+                      </div>
+                    )}
+                    {day.failed > 0 && (
+                      <div
+                        className="bg-red-500 flex items-center justify-center text-xs text-white"
+                        style={{ width: `${(day.failed / day.total) * 100}%` }}
+                        title={`${day.failed} falliti`}
+                      >
+                        {day.failed > 0 && day.failed}
+                      </div>
+                    )}
                   </div>
-                </Button>
-              )
-            })}
+                  <div className="w-16 text-sm text-right text-gray-600">
+                    {day.total} totali
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
 
-      {/* API Documentation Link */}
-      <Alert>
-        <BookOpen className="w-5 h-5" />
-        <AlertDescription>
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold mb-1">API Documentation</h3>
-              <p className="text-sm">
-                Explore the REST API endpoints and integrate with your systems
-              </p>
+      {/* Group Statistics */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Statistiche per Gruppo</CardTitle>
+          <CardDescription>Dettagli per ogni gruppo di database</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {stats.groups.length === 0 ? (
+            <p className="text-center text-gray-500 py-8">Nessun gruppo disponibile</p>
+          ) : (
+            <div className="space-y-4">
+              {stats.groups.map((group) => (
+                <div key={group.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="font-semibold text-lg">{group.name}</h3>
+                      {group.description && (
+                        <p className="text-sm text-gray-500">{group.description}</p>
+                      )}
+                    </div>
+                    <Badge variant={group.success_rate >= 80 ? 'success' : group.success_rate >= 50 ? 'warning' : 'destructive'}>
+                      {group.success_rate}% successo
+                    </Badge>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Database</div>
+                      <div className="text-xl font-semibold">{group.database_count}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Backup (30gg)</div>
+                      <div className="text-xl font-semibold">{group.backup_count}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Storage</div>
+                      <div className="text-xl font-semibold">{formatBytes(group.storage_used)}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Ultimo Backup</div>
+                      <div className="text-sm font-semibold">
+                        {group.last_backup_at ? formatDate(group.last_backup_at) : 'Mai'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <Button asChild>
-              <a
-                href="http://localhost:8000/docs"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Open Docs
-              </a>
-            </Button>
-          </div>
-        </AlertDescription>
-      </Alert>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Recent Backups */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Backup Recenti</CardTitle>
+          <CardDescription>Ultimi 3 backup eseguiti</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {stats.recent_backups.length === 0 ? (
+            <p className="text-center text-gray-500 py-8">Nessun backup disponibile</p>
+          ) : (
+            <div className="space-y-2">
+              {stats.recent_backups.map((backup) => (
+                <div
+                  key={backup.id}
+                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-2 h-2 rounded-full ${getStatusColor(backup.status)}`}></div>
+                    <div>
+                      <div className="font-medium">{backup.name}</div>
+                      <div className="text-sm text-gray-500">{backup.database_name}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <div className="text-sm font-medium">{formatBytes(backup.file_size)}</div>
+                      {backup.duration_seconds && (
+                        <div className="text-xs text-gray-500">{backup.duration_seconds}s</div>
+                      )}
+                    </div>
+                    <Badge variant={backup.status === 'completed' ? 'success' : backup.status === 'failed' ? 'destructive' : 'default'}>
+                      {getStatusLabel(backup.status)}
+                    </Badge>
+                    <div className="text-sm text-gray-500 w-32 text-right">
+                      {formatDate(backup.created_at)}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Schedules Info */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            Schedulazioni Attive
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-3xl font-bold">{stats.overview.total_schedules}</div>
+          <p className="text-sm text-gray-500 mt-1">
+            Backup automatici programmati
+          </p>
+        </CardContent>
+      </Card>
     </div>
   )
 }

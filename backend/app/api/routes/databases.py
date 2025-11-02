@@ -281,8 +281,8 @@ def update_database(
             detail="Not authorized to update this database"
         )
 
-    # Update fields
-    update_data = database_data.dict(exclude_unset=True)
+    # Update fields - use Pydantic v2 syntax
+    update_data = database_data.model_dump(exclude_unset=True)
 
     # Handle password encryption
     if "password" in update_data and update_data["password"]:

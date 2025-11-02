@@ -23,12 +23,14 @@ class DatabaseCreate(DatabaseBase):
 class DatabaseUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
+    db_type: Optional[DatabaseType] = None
     host: Optional[str] = None
     port: Optional[int] = None
     username: Optional[str] = None
     password: Optional[str] = None
     database_name: Optional[str] = None
     connection_options: Optional[str] = None
+    group_id: Optional[int] = None
     is_active: Optional[bool] = None
 
 

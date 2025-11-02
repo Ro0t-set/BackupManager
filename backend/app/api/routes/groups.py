@@ -89,20 +89,21 @@ def update_group(
             detail="Not authorized to update this group"
         )
 
+    # Get only the fields that were actually set in the request
+    update_data = group_data.model_dump(exclude_unset=True)
+    
     # Check if new name already exists
-    if group_data.name and group_data.name != group.name:
-        existing_group = db.query(Group).filter(Group.name == group_data.name).first()
+    if 'name' in update_data and update_data['name'] != group.name:
+        existing_group = db.query(Group).filter(Group.name == update_data['name']).first()
         if existing_group:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Group with this name already exists"
             )
 
-    # Update fields
-    if group_data.name is not None:
-        group.name = group_data.name
-    if group_data.description is not None:
-        group.description = group_data.description
+    # Update fields that were provided
+    for field, value in update_data.items():
+        setattr(group, field, value)
 
     db.commit()
     db.refresh(group)

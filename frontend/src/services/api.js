@@ -212,6 +212,11 @@ class ApiService {
     return this.request(`/backups/${backupId}/verify`)
   }
 
+  // Dashboard endpoints
+  async getDashboardStats() {
+    return this.request('/dashboard/stats')
+  }
+
   // Health check
   async healthCheck() {
     const response = await fetch(`${this.baseURL.replace('/api', '')}/api/health`)
