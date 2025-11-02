@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List
+from pydantic import BaseModel
 import os
 import shutil
 from datetime import datetime
@@ -15,9 +16,13 @@ from app.models.database_destination import DatabaseDestination
 router = APIRouter()
 
 
+class ManualBackupRequest(BaseModel):
+    database_id: int
+
+
 @router.post("/manual")
 async def trigger_manual_backup(
-    database_id: int,
+    request: ManualBackupRequest,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -26,6 +31,7 @@ async def trigger_manual_backup(
     Trigger a manual backup for a database.
     Uses the database's configured destinations.
     """
+    database_id = request.database_id
     database = db.query(Database).filter(Database.id == database_id).first()
     if not database:
         raise HTTPException(
