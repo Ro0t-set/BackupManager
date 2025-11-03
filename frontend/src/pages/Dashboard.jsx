@@ -144,54 +144,14 @@ function Dashboard() {
             icon={TrendingUp}
           />
         </div>
-
-        {/* Success Rate Card with Donut Chart */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-3">
-              {/* Donut Chart */}
-              <div className="relative w-16 h-16 flex-shrink-0">
-                <svg className="w-16 h-16 -rotate-90" viewBox="0 0 36 36">
-                  {/* Background circle */}
-                  <circle
-                    cx="18"
-                    cy="18"
-                    r="15.915"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    className="text-muted/30"
-                  />
-                  {/* Success arc */}
-                  <circle
-                    cx="18"
-                    cy="18"
-                    r="15.915"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    strokeDasharray={`${stats.overview.success_rate} ${100 - stats.overview.success_rate}`}
-                    className={stats.overview.success_rate >= 80 ? 'text-emerald-500' : stats.overview.success_rate >= 50 ? 'text-yellow-500' : 'text-destructive'}
-                  />
-                </svg>
-                {/* Center percentage */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-base font-bold">{stats.overview.success_rate}%</span>
-                </div>
-              </div>
-
-              {/* Stats */}
-              <div className="flex-1">
-                <div className="text-2xl font-bold">{stats.overview.success_rate}%</div>
-                <p className="text-xs text-muted-foreground mt-1">Last 30 days</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <div onClick={() => navigate('/databases')} className="cursor-pointer">
+          <StatCard
+            title="Success Rate"
+            value={`${stats.overview.success_rate}%`}
+            subtitle="Last 30 days"
+            icon={CheckCircle}
+          />
+        </div>
       </div>
 
       {/* Backup Trends Chart */}
@@ -263,6 +223,7 @@ function Dashboard() {
           </div>
         </CardContent>
       </Card>
+      
 
       {/* Group Statistics */}
       <Card>

@@ -2,6 +2,14 @@
 
 A powerful, full-stack web application for managing automated backups across multiple database systems.
 
+## Screenshots
+
+![Dashboard](docs/img/dashboard.png)
+
+![Database Management](docs/img/db.png)
+
+![Groups](docs/img/groups.png)
+
 ## Features
 
 - **Multi-Database Support**: PostgreSQL, MySQL, MongoDB, Redis

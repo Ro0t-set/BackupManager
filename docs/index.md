@@ -37,3 +37,5 @@ Per iniziare vai alla guida rapida: [Inizia ora](/guide/getting-started).
 ![Dashboard](./img/dashboard.png)
 
 ![Connessioni DB](./img/db.png)
+
+![Gruppi](./img/groups.png)

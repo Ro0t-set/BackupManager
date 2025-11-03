@@ -35,3 +35,5 @@ BackupManager orchestrates backups for databases and files with a FastAPI backen
 ![Dashboard](../img/dashboard.png)
 
 ![DB Connections](../img/db.png)
+
+![Groups](../img/groups.png)
