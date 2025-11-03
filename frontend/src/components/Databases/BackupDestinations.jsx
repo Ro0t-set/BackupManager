@@ -77,10 +77,14 @@ export default function BackupDestinations({ backupId, destinationResults, onUpd
 
       // Get filename from Content-Disposition header or use default
       const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = 'backup.sql.gz';
+      let filename = 'backup.dump';
       if (contentDisposition) {
         const match = contentDisposition.match(/filename="?(.+)"?/);
-        if (match) filename = match[1];
+        if (match) {
+          filename = match[1];
+          // Remove .gz extension if present and keep the original format
+          filename = filename.replace(/\.gz$/i, '');
+        }
       }
 
       // Download the file
